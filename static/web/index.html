@@ -1,0 +1,744 @@
+<!doctype html>
+<html>
+<head>
+	<title>Szilard Hadobas</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous"> 
+	<link href='http://fonts.googleapis.com/css?family=Bebas+Neue' rel='stylesheet' type='text/css'>
+	<link href='http://fonts.googleapis.com/css?family=Voltaire' rel='stylesheet' type='text/css'>
+	<link href='http://fonts.googleapis.com/css?family=Amatic+SC' rel='stylesheet' type='text/css'>
+	<style type="text/css">
+        html, body {
+            height: 100%;
+            padding:0;
+            margin: 0;
+            overflow: hidden;     
+			user-select: none; /* standard syntax */
+			-webkit-user-select: none; /* webkit (safari, chrome) browsers */
+			-moz-user-select: none; /* mozilla browsers */
+			-khtml-user-select: none; /* webkit (konqueror) browsers */
+			-ms-user-select: none; /* IE10+ */
+        }
+	</style>		
+</head>
+<body style='margin: 0'>
+    <div class="page-upper" style="height:100vh" id="upper_container">
+		<canvas id="upper_canvas" style="background: #233142">
+			Canvas is not supported in this browser.
+		</canvas>
+	</div>
+	<script src="/src/ImageSlot.js"></script>	
+	<script>
+		function init() {
+			//loading fonts
+			uCtx.save();
+			uCtx.fillStyle = "rgba(0, 0, 0, 1)";
+			uCtx.fillRect(0, 0, upper_Canvas.width, upper_Canvas.height);
+			uCtx.textAlign = "center";
+			uCtx.textBaseline = "middle";
+			uCtx.font = mainTitleFont.fontStyle + ' ' + mainTitleFont.fontWeight + ' ' + Math.floor(mainTitleFont.fontSize * slotScale) + 'px ' + mainTitleFont.fontFamily;
+			uCtx.fillText("LOADING...", (upper_Canvas.width / 2), (upper_Canvas.height / 2));
+			uCtx.font = subTitleFont.fontStyle + ' ' + subTitleFont.fontWeight + ' ' + Math.floor(subTitleFont.fontSize * slotScale) + 'px ' + subTitleFont.fontFamily;
+			uCtx.fillText("LOADING...", (upper_Canvas.width / 2), (upper_Canvas.height / 2));
+			uCtx.font = slotFont.fontStyle + ' ' + slotFont.fontWeight + ' ' + ((slotFont.fontSize/2) * slotScale) + 'px ' + slotFont.fontFamily;
+			uCtx.fillText("LOADING...", (upper_Canvas.width / 2), (upper_Canvas.height / 2));
+			uCtx.restore();
+			
+			//setting up slots
+			slotsWidth = 0;
+			slotAssignment.length = 0;
+			for (var i = 0; i < slotData.length; i++) {
+				slots.push(new ImageSlot({id: slotData[i].id, link: slotData[i].upper_image_link, scale:slotScale, width:slotData[i].width, baseWidth:slotData[i].baseWidth}));
+				lowerSlots.push(new ImageSlot({id: slotData[i].id, link: slotData[i].lower_image_link, scale: slotScale, width: slotData[i].width, baseWidth:slotData[i].baseWidth}));
+				slotsWidth += (slotData[i].baseWidth - 10) * slotScale;
+				slotAssignment.push(i);
+			}
+			slotAssignment = shuffle(slotAssignment);
+			c = slotsWidth/2;
+			for (var i = 0; i < slotAssignment.length; i++) {
+				slots[slotAssignment[i]].pos.x = c;
+				c += (slots[slotAssignment[i]].baseWidth - 10)*slotScale;
+			}
+			for (var i = 0; i < slots.length; i++) {
+				slots[i].loadImage();
+				lowerSlots[i].loadImage();
+				lowerSlots[i].pos.y = upper_Canvas.height - 300 * slotScale;
+			}
+		}
+		
+		function shuffle(array) {
+		  let currentIndex = array.length,  randomIndex;
+
+		  // While there remain elements to shuffle.
+		  while (currentIndex > 0) {
+
+			// Pick a remaining element.
+			randomIndex = Math.floor(Math.random() * currentIndex);
+			currentIndex--;
+
+			// And swap it with the current element.
+			[array[currentIndex], array[randomIndex]] = [
+			  array[randomIndex], array[currentIndex]];
+		  }
+
+		  return array;
+		}		
+		
+		function drawGlobalFade() {
+			globalFade -= globalFadeDamping;
+			if (globalFade < 0) {
+				globalFade = 0;
+				return;
+			}
+			uCtx.save();
+			uCtx.fillStyle = "rgba(0, 0, 0, 1)";
+			uCtx.globalAlpha = globalFade;
+			uCtx.fillRect(0, 0, upper_Canvas.width, upper_Canvas.height);
+			uCtx.restore();
+			
+		}
+		
+		function draw() {
+		//ha scale-re kerul a sor mindent szorozgatni kell (on-screen check pl)
+			uCtx.save();
+			var deltaX = 0;
+			if (Math.abs(titleHighlightSize - titleHighlightTarget) > 0.1) {
+				if (titleHighlightSize < titleHighlightTarget) {
+					titleHighlightSize += (titleHighlightTarget - titleHighlightSize) * titleHighlightDamping;
+				} else {
+					titleHighlightSize -= (titleHighlightSize - titleHighlightTarget) * titleHighlightDamping;
+				}
+			} else {
+				titleHighlightSize = titleHighlightTarget;
+			}
+			if (mouseState == 0) {
+				if (Math.abs(scrollSpeed - scrollSpeedTarget) > 0.1)  {
+					if (scrollSpeed > scrollSpeedTarget) {
+						scrollSpeed -= (scrollSpeed - scrollSpeedTarget) * scrollDamping;
+					} else {
+						scrollSpeed += (scrollSpeedTarget - scrollSpeed) * scrollDamping;
+					}
+				}
+				deltaX = (scrollSpeed * scrollSpeedDir);
+			}
+
+			if (deltaX != 0) {
+				for (var i = 0; i < slots.length; i++) {
+					slots[i].pos.x = slots[i].pos.x + deltaX;
+				}
+				if (deltaX > 0) {
+					var temp = [];
+					for (var i = (slotAssignment.length - 1); i >= 0; i--) {
+						if (slots[slotAssignment[i]].pos.x > (upper_Canvas.width + 80)) {
+							temp.push(i);
+						}
+					}
+					if (temp.length > 0) {
+						for (var i = 0; i < temp.length; i++) {
+							slots[slotAssignment[temp[i]]].pos.x = slots[slotAssignment[0]].pos.x - (slots[slotAssignment[temp[i]]].baseWidth - 10) * slotScale;
+							slotAssignment.unshift(slotAssignment[slotAssignment.length-1]);
+							slotAssignment.pop();
+							for (var j = 0; j < temp.length; j++) {
+								temp[j] += 1;
+							}
+						}
+					}
+				} else {
+					var temp = [];
+					for (var i = 0; i < slotAssignment.length; i++) {
+						if ((slots[slotAssignment[i]].pos.x + slots[slotAssignment[i]].width) < -10) {
+							temp.push(i);
+						}
+					}
+					if (temp.length > 0) {
+						for (var i = 0; i < temp.length; i++) {
+							slots[slotAssignment[temp[i]]].pos.x = slots[slotAssignment[slotAssignment.length-1]].pos.x + (slots[slotAssignment[temp[i]]].baseWidth - 10) * slotScale;
+							slotAssignment.push(slotAssignment[0]);
+							slotAssignment.shift();
+							for (var j = 0; j < temp.length; j++) {
+								temp[j] -= 1;
+							}
+						}
+					}
+				}
+			}
+		/*	uCtx.fillStyle = "#233142";
+			uCtx.fillRect(0,0,cont_width,cont_height);*/
+			uCtx.shadowOffsetX = 5;
+			uCtx.shadowOffsetY = 5;
+			uCtx.shadowColor = "rgba(0, 0, 0, .75)";
+			uCtx.shadowBlur = 40 * slotScale;
+			for (var i = slots.length - 1; i >= 0; i--) {
+				currSlot = slots[slotAssignment[i]];
+				lowerSlots[slotAssignment[i]].pos.x = currSlot.pos.x - 135 * slotScale;
+				if ((currSlot.pos.x <= (upper_Canvas.width + 80)) && ((currSlot.pos.x + currSlot.width * slotScale) > -20)) {
+					currSlot.draw(uCtx);
+					lowerSlots[slotAssignment[i]].draw(uCtx);
+				}
+			}			
+			//slot highlight 
+			if (mouseState >= 1) {
+				var gs = slotAssignment.indexOf(grabSlot);
+				const cSlot = slots[slotAssignment[gs]];
+				const lSlot = lowerSlots[slotAssignment[gs]];
+				const cData = slotData[slotAssignment[gs]];
+				//gradient
+				uCtx.shadowOffsetX = 0;
+				uCtx.shadowOffsetY = 0;
+				uCtx.shadowColor = "rgba(0, 0, 0, 0)";
+				uCtx.shadowBlur = 0;
+				const grd = uCtx.createLinearGradient(0, 0, gradientWidth * slotScale, 0);
+				grd.addColorStop(0, slotHighlight[cData.type][1]);
+				grd.addColorStop(1, slotHighlight[cData.type][0]);
+				uCtx.setTransform(1, 0, -((10 * Math.PI) / 180), 1, cSlot.pos.x + (100 + 16) * slotScale, 0);
+				uCtx.fillStyle = grd;
+				uCtx.fillRect(0, 0, gradientWidth * slotScale, cSlot.img.height * slotScale);
+				uCtx.fillRect(0, lSlot.pos.y, gradientWidth * slotScale, lSlot.img.height * slotScale);
+				const grd2 = uCtx.createLinearGradient(0, 0, gradientWidth * slotScale, 0);
+				grd2.addColorStop(0, slotHighlight[cData.type][0]);
+				grd2.addColorStop(1, slotHighlight[cData.type][1]);
+				uCtx.setTransform(1, 0, -((10 * Math.PI) / 180), 1, cSlot.pos.x + (cSlot.baseWidth - 4 - 200) * slotScale, 0);
+				uCtx.fillStyle = grd2;
+				uCtx.fillRect(0, 0, gradientWidth * slotScale, cSlot.img.height * slotScale);
+				uCtx.fillRect(0, lSlot.pos.y, gradientWidth * slotScale, lSlot.img.height * slotScale);
+
+				//info
+				uCtx.setTransform(1, 0, -((10 * Math.PI) / 180), 1, cSlot.pos.x + (cSlot.baseWidth - 4 - 200) * slotScale, 0);
+				uCtx.font = slotFont.fontStyle + ' ' + slotFont.fontWeight + ' ' + ((slotFont.fontSize/2) * slotScale) + 'px ' + slotFont.fontFamily;
+				uCtx.shadowOffsetX = 2;
+				uCtx.shadowOffsetY = 2;
+				uCtx.shadowColor = "rgba(0, 0, 0, .75)";
+				uCtx.shadowBlur = 2;
+				uCtx.fillStyle = "white";
+				h = 80 * slotScale;
+				for (k in cData.slideText) {
+					uCtx.fillText(k, -100 * slotScale, h );
+					h += (100 * slotScale);
+				}
+				h = 130 * slotScale;
+				uCtx.font = slotFont.fontStyle + ' ' + slotFont.fontWeight + ' ' + (slotFont.fontSize * slotScale) + 'px ' + slotFont.fontFamily;
+				for (k in cData.slideText) {
+					uCtx.fillText(cData.slideText[k], -75 * slotScale, h);
+					h += (100 * slotScale);
+				}
+
+				
+			}
+			uCtx.setTransform(1, 0, 0, 1, 0, 0);
+
+			//name strip
+			uCtx.fillStyle = "rgba(2, 46, 63, 1)";
+			uCtx.shadowOffsetX = 0;
+			uCtx.shadowOffsetY = 0;
+			uCtx.shadowColor = "rgba(0, 0, 0, 1)";
+			uCtx.shadowBlur = 50 * slotScale;
+			uCtx.fillRect(0, 594 * slotScale, upper_Canvas.width, 196 * slotScale);
+			uCtx.fillStyle = "rgba(255, 222, 106, 1)";
+			uCtx.textAlign = "center";
+			uCtx.textBaseline = "middle";
+			uCtx.shadowColor = "rgba(0, 0, 0, .75)";
+			uCtx.font = mainTitleFont.fontStyle + ' ' + mainTitleFont.fontWeight + ' ' + Math.floor(mainTitleFont.fontSize * slotScale) + 'px ' + mainTitleFont.fontFamily;
+			uCtx.fillText("SZILARD HADOBAS", (upper_Canvas.width / 2), 705*slotScale);
+			uCtx.font = subTitleFont.fontStyle + ' ' + subTitleFont.fontWeight + ' ' + Math.floor(subTitleFont.fontSize * slotScale) + 'px ' + subTitleFont.fontFamily;
+			uCtx.textAlign = "start";
+			uCtx.textBaseline = "top";
+			uCtx.fillText("animator", 50 * slotScale, 695 * slotScale);
+			uCtx.textBaseline = "bottom";
+			uCtx.fillText("senior", 50 * slotScale, 695 * slotScale);
+			uCtx.textAlign = "right";
+			uCtx.textBaseline = "top";
+			uCtx.fillText("artist", upper_Canvas.width - (50 * slotScale), 695 * slotScale);
+			uCtx.textBaseline = "bottom";
+			uCtx.fillText("technical", upper_Canvas.width - (50 * slotScale), 695 * slotScale);
+			if (titleHighlightSize > 0) {
+				uCtx.textAlign = "center";
+				uCtx.textBaseline = "middle";
+				uCtx.shadowOffsetX = 0;
+				uCtx.shadowOffsetY = 0;
+				uCtx.shadowColor = "rgba(255, 255, 255, 1)";
+				uCtx.shadowBlur = titleHighlightSize * slotScale;
+				uCtx.font = mainTitleFont.fontStyle + ' ' + mainTitleFont.fontWeight + ' ' + Math.floor(mainTitleFont.fontSize * slotScale) + 'px ' + mainTitleFont.fontFamily;
+				uCtx.fillText("SZILARD HADOBAS", (upper_Canvas.width / 2), 705 * slotScale);
+			}
+			uCtx.restore();
+
+			if (globalFade != 0) drawGlobalFade();
+			
+			lastCursor.x = cursor.x;
+		}
+
+		function slotPosUpdate(cpos) {
+			for (var i = (cpos + 1); i < slotAssignment.length; i++) {
+				slots[slotAssignment[i]].pos.x = slots[slotAssignment[i-1]].pos.x + (slots[slotAssignment[i-1]].baseWidth - 10) * slotScale;
+			}
+			for (var i = (cpos - 1); i >= 0; i--) {
+				slots[slotAssignment[i]].pos.x = slots[slotAssignment[i+1]].pos.x - (slots[slotAssignment[i]].baseWidth - 10) * slotScale;
+			}
+		}
+		
+		function reCenterSlots(cpos) {		
+			var cval = slotAssignment[cpos];
+			var wl = Math.floor((slotAssignment.length - 1) / 2);
+		//	cpos = slotAssignment.indexOf(cx);
+			if (cpos > wl) {
+				for (var i = 0; i < (cpos - wl); i++) {
+					temp = slotAssignment[0];
+					slotAssignment.shift();
+					slotAssignment.push(temp);
+				}
+			} else if (cpos < wl) {
+				for (var i = 0; i < (wl - cpos); i++) {
+					temp = slotAssignment[slotAssignment.length-1];
+					slotAssignment.pop();
+					slotAssignment.unshift(temp);
+				}
+			}
+			cpos = slotAssignment.indexOf(cval);
+			slotPosUpdate(cpos);
+		}
+
+		addEventListener('resize', () => {
+			cont_positionInfo = up_container.getBoundingClientRect();
+			cont_height = cont_positionInfo.height;
+			cont_width = cont_positionInfo.width;
+			upper_Canvas.width = cont_width;
+			upper_Canvas.height = cont_height;
+			slotScale = upper_Canvas.height / 1080;
+			for (var i = 0; i < slots.length; i++) {
+				slots[i].scale = slotScale;
+				lowerSlots[i].scale = slotScale;
+				lowerSlots[i].pos.y = upper_Canvas.height - 300 * slotScale;
+			}
+			var slotHit = -1;
+			for (var i = slots.length-1; i >= 0; i--) {
+				if (slots[slotAssignment[i]].isHit(Math.floor(100), 1)) {
+					slotHit = i;
+				}
+			}
+			if (slotHit != -1) {
+				var grabIx = slots[slotAssignment[slotHit]].pos.x;
+				reCenterSlots(slotHit, grabIx);
+			}
+			window.requestAnimationFrame(draw);
+			
+		});		
+		
+		addEventListener("mousedown", (e) => {
+			scrollSpeed = 0;
+			slotHit = -1;
+			grabSlot = -1;
+			if ((e.clientY > (titleRelative.y*cont_height)) && (e.clientY < ((titleRelative.y + titleRelative.h)*cont_height))) {
+				//kattintas a titlebar-ra
+				
+				window.location.href = "/body";
+			} else {
+				//kattintas a slotokra
+				for (var i = slots.length-1; i >= 0; i--) {
+					if (slots[slotAssignment[i]].isHit(e.clientX, e.clientY)) {
+						slotHit = i;
+					}
+				}
+				if (slotHit == -1) {
+					for (var i = slots.length-1; i >= 0; i--) {
+						if (lowerSlots[slotAssignment[i]].isHit(e.clientX, e.clientY)) {
+							slotHit = i;
+						}
+					}
+				}
+				grabIx = slots[slotAssignment[slotHit]].pos.x;
+				if (grabIx != -1) {
+					grabSlot = slotAssignment[slotHit];
+					reCenterSlots(slotHit, grabIx);
+					grabPos = e.clientX;
+					mouseState = 1;
+				}
+			}
+		}); // click and hold to pan
+		addEventListener("mousemove", (e) => {
+			lastCursor.x = cursor.x;
+			if (mouseState == 0) {
+				if ((e.clientY > (titleRelative.y*cont_height)) && (e.clientY < ((titleRelative.y + titleRelative.h)*cont_height))) {
+					titleHighlightTarget = 25;
+				} else {
+					titleHighlightTarget = 0;
+				}
+			} else {
+				if (mouseState == 1) {
+					mouseState = 2;
+				}
+				if (mouseState == 2) {
+					var delta = e.clientX - grabPos;
+					if (delta < -upper_Canvas.width) {
+						delta = -upper_Canvas.width;
+					} else if (delta > upper_Canvas.width) {
+						delta = upper_Canvas.width;
+					}
+					cpos = slotAssignment.indexOf(grabSlot);
+					slots[slotAssignment[cpos]].pos.x = grabIx + delta;
+					slotPosUpdate(cpos);
+				}
+			}
+			cursor.x = e.clientX;
+		});		
+		addEventListener("mouseup", (e) => {
+			if (mouseState == 2) {
+				var delta = e.clientX - grabPos;
+//				ix = grabIx + delta;
+				scrollSpeed = e.clientX - lastCursor.x;
+				if (scrollSpeed < 0) {
+					scrollSpeed *= -1;
+					scrollSpeedDir = -1;
+				} else {
+					scrollSpeedDir = 1;
+				}
+				//end scroll
+			}
+			mouseState = 0;
+		});
+		
+		function redrawScreen() {
+			window.requestAnimationFrame(draw);
+		}
+		
+		const drawInterval = setInterval(redrawScreen, 40);
+		
+		var slotData = [
+			{
+				id: 1,
+				upper_image_link: "https://lh3.googleusercontent.com/drive-viewer/AK7aPaCIaLkNbuRBxbjMur5yMaGqF8hVGJHsl-dD5robYuQ2NHxf4wqP9WjkNL33lc3GnqV7L4lhp6NBmM3A3ubp6T74LYRBjg=s2560",
+				lower_image_link: "https://lh3.googleusercontent.com/drive-viewer/AK7aPaAJ1wXtXp90kSDLCdRSdUKroQjUDsfnfwNkaEuCW5ecOC96Wv9i7ul5Tt32GB4-I0T3v7OI3qFbPEsPIS54rCirNCV38g=s2560",
+				width: 582,
+				baseWidth: 475,
+				type: "feature",
+				slideText:{
+					"Title:": "Egon and Dönci",
+					"Studio:": "AenimaCGS",
+					"Location:": "Eger, Hungary",
+					"Role:": "animator/tech artist",
+					"Year:": "2006-2007"
+				}
+			},
+			{
+				id: 2,
+				upper_image_link: "https://lh3.googleusercontent.com/drive-viewer/AK7aPaBlm-nVNq3Cww5L5tUPhei3JvJZ8WKFcMazBlVaKJ8c5MPnh_0BRAzWm3my4IwHsadkIDQm3_VsIduIacxlP8XaM0cuTQ=s2560",
+				lower_image_link: "https://lh3.googleusercontent.com/drive-viewer/AK7aPaBbgRmlAJozKGBuKz2hNQKylfGah_Q3hjAj76sFmwJKN5JshnMbhCqenmn0gg4rIoBScwojEJD_54Y443MV74YZwYn7VQ=s2560",
+				width: 582,
+				baseWidth: 475,
+				type: "game",
+				slideText:{
+					"Title:": "Crysis Warhead",
+					"Studio:": "Crytek",
+					"Location:": "Budapest, Hungary",
+					"Role:": "animator/tech artist",
+					"Year:": "2008"
+				}
+			},
+			{
+				id: 3,
+				upper_image_link: "https://lh3.googleusercontent.com/drive-viewer/AK7aPaCOmWTkQxw4XVjmFWGhI4HjA9Z5vKoS8QiQppzD5kslUY-nV-wbxISkwdBzaBfoLJO4eUJ239YWVDfl27lssH2sS-ul=s2560",
+				lower_image_link: "https://lh3.googleusercontent.com/drive-viewer/AK7aPaBXall7zIgjuqwes4a9LRhbgr5VG9I2yesjqdSa6CQqqQY5n__JwPTP74DMbn5qijgz2jhqiCgQCp29K7vT6E_utsIprw=s2560",
+				width: 579,
+				baseWidth: 472,
+				type: "game",
+				slideText:{
+					"Title:": "Ryse son of Rome",
+					"Studio:": "Crytek",
+					"Location:": "Budapest, Hungary",
+					"Role:": "animator/tech artist",
+					"Year:": "2009-2011"
+				}
+			},
+			{
+				id: 4,
+				upper_image_link: "https://lh3.googleusercontent.com/drive-viewer/AK7aPaCQYVBVOwbGWlgJS5gsaDdTC3xIwncBgJp75fd30i_v2jAvhhPcFX97Kqn4GmurhqN2H3rfLPg-A92nVHMhsxc59JvpnQ=s2560",
+				lower_image_link: "https://lh3.googleusercontent.com/drive-viewer/AK7aPaD1Bmg5Nv-hM0r3Ps7ByBd9zemAmnakz3t20lkwDDELg-SVDpvXCcEl5D9z_RFCAtBxKaYMuUI14ouCWg6rIEwVdnQ0ZQ=s2560",
+				width: 579,
+				baseWidth: 472,
+				type: "VFX",
+				slideText:{
+					"Title:": "Dumbo",
+					"Studio:": "MPC",
+					"Location:": "London, UK",
+					"Role:": "animator",
+					"Year:": "2017-2018"
+				}
+			},
+			{
+				id: 5,
+				upper_image_link: "https://lh3.googleusercontent.com/drive-viewer/AK7aPaCm1hQyAeA-TP8fbNszPVxz_6hJryifw4v2ZVfdYZ2UaRl9yhMg4ECrap1ThSLboxTEBFh_vjbO18zmcmKrZ57bzf1F=s2560",
+				lower_image_link: "https://lh3.googleusercontent.com/drive-viewer/AK7aPaDSzeBMntvA6aDXrBjdeuqaQBJwmaYMrByCp9GoVFWwjviFxkXWrMjgFBG1Hx4_CLGbFpQ_nzLaBXwK2aViUXWWJp2Qpg=s2560",
+				width: 578,
+				baseWidth: 471,
+				type: "VFX",
+				slideText:{
+					"Title:": "Maleficent 2",
+					"Studio:": "MPC",
+					"Location:": "London, UK",
+					"Role:": "animator",
+					"Year:": "2018-2019"
+				}
+			},
+			{
+				id: 6,
+				upper_image_link: "https://lh3.googleusercontent.com/drive-viewer/AK7aPaCTaU7SO1En6CGbSOhl856WlO5EwdH_reIQtcbla13J-P9sCycYOT5FGZ3daLVp3SaHh2ULVFBLxvM87hG--DxcTqEvKA=s2560",
+				lower_image_link: "https://lh3.googleusercontent.com/drive-viewer/AK7aPaCEpHUiDUyDTMB4BlNTYSlNTbKAVk0g76JuiP12Aa4ZPC_8snj2bOwItXgYhyXHnUbQlY_HevYXKTmXfrr1y65NM3u_Gw=s2560",
+				width: 578,
+				baseWidth: 471,
+				type: "VFX",
+				slideText:{
+					"Title:": "The Midnight Sky",
+					"Studio:": "Framestore",
+					"Location (remote):": "London, UK",
+					"Role:": "animator",
+					"Year:": "2020"
+				}
+			},
+			{
+				id: 7,
+				upper_image_link: "https://lh3.googleusercontent.com/drive-viewer/AK7aPaC0DK4dibRmr0pk3UcK4yCXapsvUZKOeeIwPr9UFY25x5nsMLX_wVEfZWITeQnv6zwL-9VHLtPNbvoe9Vy6oin-cmoOKQ=s2560",
+				lower_image_link: "https://lh3.googleusercontent.com/drive-viewer/AK7aPaDNxtFi-94_G1Dov5zJmpdWsePT23tVJZVEhEBup_Q-BQaLmzjwoMCpKN6NcH6k1LAwkhRLLI76DUD7EDsx7ioE300CWA=s2560",
+				width: 579,
+				baseWidth: 472,
+				type: "VFX",
+				slideText:{
+					"Title:": "Tom and Jerry",
+					"Studio:": "Framestore",
+					"Location (remote):": "London, UK",
+					"Role:": "animator",
+					"Year:": "2020"
+				}
+			},
+			{
+				id: 8,
+				upper_image_link: "https://lh3.googleusercontent.com/drive-viewer/AK7aPaBWo-Ps_SadvYZaKX_XsrmNS63DvQn1__sso5CTbgKpa25ZnjjyvFOiZgnpqGt8ef-bvuO0jE9DXJ6-KKJZIN-CEiJqjQ=s2560",
+				lower_image_link: "https://lh3.googleusercontent.com/drive-viewer/AK7aPaBTv8V1p38WfpVZ8g7lNbZ5Hn2YOo6Hie3AO8H1p-aq-BqxP7ha4ev4HDc3AM0KugYqLSa0G7vuTfPQgijVqljrT--Fmw=s2560",
+				width: 579,
+				baseWidth: 472,
+				type: "VFX",
+				slideText:{
+					"Title:": "Fantastic Beasts 3",
+					"Studio:": "Framestore",
+					"Location:": "London, UK",
+					"Role:": "previs animator",
+					"Year:": "2019-2020"
+				}
+			},
+			{
+				id: 9,
+				upper_image_link: "https://lh3.googleusercontent.com/drive-viewer/AK7aPaAKXmJ9DDT0KpI9oG2MTFZ2j5OZIrFXitxsqHWwOXCuCcgDsSDPX9QoR6J0UUk5LlS-o3_AR_kJSNJoZfv1F0-9idJHhA=s2560",
+				lower_image_link: "https://lh3.googleusercontent.com/drive-viewer/AK7aPaAKXmJ9DDT0KpI9oG2MTFZ2j5OZIrFXitxsqHWwOXCuCcgDsSDPX9QoR6J0UUk5LlS-o3_AR_kJSNJoZfv1F0-9idJHhA=s2560",
+				width: 578,
+				baseWidth: 471,
+				type: "VFX",
+				slideText:{
+					"Title:": "The Marvels",
+					"Studio:": "Trixter",
+					"Location (remote):": "Hamburg, Germany",
+					"Role:": "senior animator",
+					"Year:": "2022"
+				}
+			},
+			{
+				id: 10,
+				upper_image_link: "https://lh3.googleusercontent.com/drive-viewer/AK7aPaCw8VXSIudqUEt2T8LBUFTKHrB_G9BHpdQWJsdh8_42nfF4be5myIk_GulXx1YnEZKo93S_tULeiorShHuOjzX6nc7btA=s2560",
+				lower_image_link: "https://lh3.googleusercontent.com/drive-viewer/AK7aPaB_WLpSAlWnnHVI8AaMRBwSbavhx3VGtsOKql7KTLj_GjJ4JtsHXTqE0QcfeeOSn5gsWBeBKFhd-tSxNQKefPMwpRA5=s2560",
+				width: 578,
+				baseWidth: 471,
+				type: "feature",
+				slideText:{
+					"Title:": "The Amazing Maurice",
+					"Studio:": "Redstar3d",
+					"Location (remote):": "Sheffield, UK",
+					"Role:": "animator",
+					"Year:": "2021"
+				}
+			},
+			{
+				id: 11,
+				upper_image_link: "https://lh3.googleusercontent.com/drive-viewer/AK7aPaDo04PiUYNTKK5PAkI_7bhlBxz5Hw5iHrFDyjH_cL-giZo4TEEqUK7G6azzjQVn45pvpBcgsQXgsX83Fi1qDHoBmmbAAw=s2560",
+				lower_image_link: "https://lh3.googleusercontent.com/drive-viewer/AK7aPaB6GQRb5zoOT_e05s40FEpwkQbdniLhJ4R79iKnSXm4a0TgkBYwv_4npxPvArGppPSpG4TW_OsRpJGXQZW7GvLeo8MBYw=s2560",
+				width: 579,
+				baseWidth: 472,
+				type: "feature",
+				slideText:{
+					"Title:": "Scrooge",
+					"Studio:": "Axis animation",
+					"Location (remote):": "Glasgow, UK",
+					"Role:": "animator",
+					"Year:": "2021-2022"
+				}
+			},
+			{
+				id: 12,
+				upper_image_link: "https://lh3.googleusercontent.com/drive-viewer/AK7aPaAzXbChi2mxGVKEV5EITXHboixf-w4rBlosjnqL1BjcyjgnNVcCKoW1tQgc4fbHeCLcov9YsNYNH9FXtB7W93ZMRsybOQ=s2560",
+				lower_image_link: "https://lh3.googleusercontent.com/drive-viewer/AK7aPaBnvcv-R4KSObv3y9mNe93ScQN3n7I0iTYTHYvWKRgKdcTywQOKPXWvVoPGULyiy1-vCEoNxK_u1ncWumWM7ruTK0aSLg=s2560",
+				width: 578,
+				baseWidth: 471,
+				type: "feature",
+				slideText:{
+					"Title:": "Paw patrol 2",
+					"Studio:": "Mikros animation",
+					"Location:": "Montreal, QC, Canada",
+					"Role:": "senior animator",
+					"Year:": "2022-2023"
+				}
+			},
+			{
+				id: 13,
+				upper_image_link: "https://lh3.googleusercontent.com/drive-viewer/AK7aPaD-4SzaWGpz6BKHlmALW9-a4iziC2VZb8GzxejxomvnUP2mSsqx1xPGuF69v-TY3ybWskd0nWbXJssYizZipyRDs0e5Cg=s2560",
+				lower_image_link: "https://lh3.googleusercontent.com/drive-viewer/AK7aPaCNrcs_Zse5YhnmrRqQ3IEys_b6Cy3NawDL3OB_KERKatFnXbl3BtLDkmi8IecDHEd4EXhP8EBS_rpwQxA1ELj96-4s=s2560",
+				width: 579,
+				baseWidth: 472,
+				type: "feature",
+				slideText:{
+					"Title:": "The firebuds S2",
+					"Studio:": "ICON creative",
+					"Location (remote):": "Vancouver, BC, Canada",
+					"Role:": "senior animator (4 ep)",
+					"Year:": "2023"
+				}
+			},
+			{
+				id: 14,
+				upper_image_link: "https://lh3.googleusercontent.com/drive-viewer/AK7aPaBAldfAfM7FQQUALHpf9vfBMuOQaLkieWz4ok-Ro3oC5kCAPLvQ7uQbgnWWhHpXsf15y2BqSBx-vrqYBL60Qc514QWg4g=s2560",
+				lower_image_link: "https://lh3.googleusercontent.com/drive-viewer/AK7aPaBeENXNqg-8iVbXGiVR1Ra_-bM8wr_bnA2k95CNuWm570ew8nQccblTiAp1GDi_RXEAOvsj1J1ZaS9Zj-29SU3IK3D8=s2560",
+				width: 578,
+				baseWidth: 471,
+				type: "VFX",
+				slideText:{
+					"Title:": "Wonder Woman 1984",
+					"Studio:": "Framestore",
+					"Location:": "London, UK",
+					"Role:": "animator",
+					"Year:": "2019"
+				}
+			},
+			{
+				id: 15,
+				upper_image_link: "https://lh3.googleusercontent.com/drive-viewer/AK7aPaCV2X6dTz7J6l6m_j7mPKI7qPYH5tFvvB7Bw5nzs36DPo1Ltj_NkR6tsO7eUCVCjaLwv7Qln0bxy4LDswOsfXukmx4XnQ=s2560",
+				lower_image_link: "https://lh3.googleusercontent.com/drive-viewer/AK7aPaDYKBCkbnIV0gcFuPIONRYVdeO3uZbaqLBhhqUxYkQtQwHHNoh_1f-tNYiAS7hE4ou3rue-rr6hSXZlXpp7Q5duUb1gaA=s2560",
+				width: 578,
+				baseWidth: 471,
+				type: "feature",
+				slideText:{
+					"Title:": "Another Day of Life",
+					"Studio:": "Animationsfabrik",
+					"Location(remote):": "Hamburg, Germany",
+					"Role(contractor):": "lead 3d artist",
+					"Year:": "2015"
+				}
+			},
+			{
+				id: 16,
+				upper_image_link: "https://lh3.googleusercontent.com/drive-viewer/AK7aPaBfK_GHW7yas1evjWHyv9ZnMkRVz5lAq7n0R2Ep8Zvp0c_uOFSAQEBZSDQ5wSAZ1vh86s8AFNrW0HZrHkGNWTHtbHoX2w=s2560",
+				lower_image_link: "https://lh3.googleusercontent.com/drive-viewer/AK7aPaAKrar6hss1ciDOtRmJ9lL5H5EaZFe93XQlloHZ4GzipYiMGUEENuDWwvOJQg8FTKVld2iZ_3ftrDaQG-mjTur6xxOYaQ=s2560",
+				width: 578,
+				baseWidth: 471,
+				type: "feature",
+				slideText:{
+					"Title:": "Matches",
+					"Studio:": "Kedd",
+					"Location(remote):": "Budapest, Hungary",
+					"Role:": "pipeline td",
+					"Year:": "2012"
+				}
+			},
+			{
+				id: 17,
+				upper_image_link: "https://lh3.googleusercontent.com/drive-viewer/AK7aPaB-FudeGuJOZmxWedgbx2tQ2l3pjx9n3kDv8Z31IqZpancz0dzuYMZ-KUeO-TwwzxqvJTW9fUHVcMIIgXX7NFWzSlWG=s2560",
+				lower_image_link: "https://lh3.googleusercontent.com/drive-viewer/AK7aPaCOvoQn0KcpVBLkVd-VGYChanudzj_rdfz2vzgtlbSUCZs8gKeLRdduf5j4myHMhu48mWfiKe2Ndup1ZwzCpTRp0zeV6w=s2560",
+				width: 578,
+				baseWidth: 471,
+				type: "game",
+				slideText:{
+					"Title:": "Tankheadz",
+					"Studio:": "kiloo",
+					"Location:": "Budapest, Hungary",
+					"Role:": "senior animator",
+					"Year:": "2015-2016"
+				}
+			},
+			{
+				id: 18,
+				upper_image_link: "https://lh3.googleusercontent.com/drive-viewer/AK7aPaDLwG6mYuYx8McFnCifho9P2wrzwhjrqFDnFvurH1zAXC_nTSNBNip9Y-yaHx3IhadAq7LOvodo8LSLRhQ3bFbponx6=s2560",
+				lower_image_link: "https://lh3.googleusercontent.com/drive-viewer/AK7aPaBt2IZnPSIwfuKVU1DWAM6H1cbfKbOr2mMoU7_Z4TRgIETJfKTwmmVQBu08RVs-VKqVlMZlcixTpXrmBS-yqO2lu-PfAg=s2560",
+				width: 578,
+				baseWidth: 471,
+				type: "game",
+				slideText:{
+					"Title:": "Fibble",
+					"Studio:": "Crytek",
+					"Location:": "Budapest, Hungary",
+					"Role:": "technical artist",
+					"Year:": "2012"
+				}
+			},
+			{
+				id: 19,
+				upper_image_link: "https://lh3.googleusercontent.com/drive-viewer/AK7aPaBydR8x7ZJwsRONRxwW4NE3l1Xz0F0_-yE0TowbZo2f-K-z57vaDAEiVoSyr-7aWvGzvdE__MnFmt0jdXStstGDqt3Ucw=s2560",
+				lower_image_link: "https://lh3.googleusercontent.com/drive-viewer/AK7aPaBthFVWLu9Bdd-iNd4VlM8l_Sx16PJlKSZgHJ0ln67M5PlYaakR8PGFMIw-WUDrlRUEUI7XQBPJguFDT_f5pdStDPT9Rg=s2560",
+				width: 578,
+				baseWidth: 471,
+				type: "game",
+				slideText:{
+					"Title:": "The Collectables",
+					"Studio:": "Crytek",
+					"Location:": "Budapest, Hungary",
+					"Role:": "technical artist",
+					"Year:": "2013-2014"
+				}
+			}			
+		];
+		const slotHighlight = {
+			"VFX": ["rgba(0, 0, 255, 0)", "rgba(0, 0, 255, 0.5)"],
+			"feature": ["rgba(255, 255, 0, 0)", "rgba(255, 255, 0, 0.5)"],
+			"game": ["rgba(0, 255, 0, 0)", "rgba(0, 255, 0, 0.5)"]
+		};
+		const slotFont = {fontSize: 48, fontStyle: 'normal', fontWeight: 'normal', fontFamily: 'Bebas Neue'};
+		const mainTitleFont = {fontSize: 130, fontStyle: 'normal', fontWeight: 'normal', fontFamily: 'Voltaire'};
+		const subTitleFont = {fontSize: 60, fontStyle: 'normal', fontWeight: 'normal', fontFamily: 'Amatic SC'};
+		var slots = [];
+		var lowerSlots = [];
+		var slotAssignment = [];
+		var slotsWidth = 0;
+		var slotScale = 1;
+		var slotHit = -1;
+		var grabSlot = -1;		
+		var gradientWidth = 300;
+		const cursor = {x: 0, y: 0};
+		const lastCursor = {x: 0, y: 0};
+		var mouseState = 0;
+		var scrollSpeed = 1;
+		var scrollSpeedDir = 1;
+		var scrollSpeedTarget = 1;
+		var scrollDamping = 0.1;
+		var titleHighlightSize = 0;
+		var titleHighlightTarget = 0;
+		var titleHighlightDamping = 0.1;
+		var grabPos = 0;
+		var grabIx = 0;
+		var titleRelative = {x:0, y:0.55, w:1, h:0.18};
+		var globalFadeTarget = 0;
+		var globalFade = 1;
+		var globalFadeDamping = 0.05;
+		
+		upper_Canvas = document.getElementById("upper_canvas");
+		uCtx = upper_Canvas.getContext("2d");
+		up_container = document.getElementById("upper_container");
+		var cont_positionInfo = up_container.getBoundingClientRect();
+		var cont_height = cont_positionInfo.height;
+		var cont_width = cont_positionInfo.width;
+		upper_Canvas.width = cont_width;
+		upper_Canvas.height = cont_height;
+		slotScale = upper_Canvas.height / 1080;
+
+		
+		init();
+//		img.src = "https://static.wixstatic.com/media/9495dc_479bfd5600b94613a3c7e14fa8ef2cf7.jpg/v1/fill/w_432,h_554,al_c,lg_1,q_80,enc_auto/9495dc_479bfd5600b94613a3c7e14fa8ef2cf7.jpg"
+//		img.src = "https://lh3.googleusercontent.com/drive-viewer/AK7aPaBw0FZd5wcYhP3BLgoPX6hJUnyEUhgOVyD7X_4YPuwOAFE5wNJGW3n5KjU6JiLZyWYyJ73ff5Z8XvIhTrhKmXSvgD3_XA=s1600"
+		
+		
+		
+	</script>
+</body>
+</html>
