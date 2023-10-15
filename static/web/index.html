@@ -99,7 +99,6 @@
 		}
 		
 		function draw() {
-		//ha scale-re kerul a sor mindent szorozgatni kell (on-screen check pl)
 			uCtx.save();
 			var deltaX = 0;
 			if (Math.abs(titleHighlightSize - titleHighlightTarget) > 0.1) {
@@ -173,7 +172,7 @@
 				lowerSlots[slotAssignment[i]].pos.x = currSlot.pos.x - 135 * slotScale;
 				if ((currSlot.pos.x <= (upper_Canvas.width + 80)) && ((currSlot.pos.x + currSlot.width * slotScale) > -20)) {
 					currSlot.draw(uCtx);
-					lowerSlots[slotAssignment[i]].draw(uCtx);
+					if (landScape) lowerSlots[slotAssignment[i]].draw(uCtx);
 				}
 			}			
 			//slot highlight 
@@ -194,14 +193,15 @@
 				uCtx.fillStyle = grd;
 				uCtx.fillRect(0, 0, gradientWidth * slotScale, cSlot.img.height * slotScale);
 				uCtx.fillRect(0, lSlot.pos.y, gradientWidth * slotScale, lSlot.img.height * slotScale);
-				const grd2 = uCtx.createLinearGradient(0, 0, gradientWidth * slotScale, 0);
-				grd2.addColorStop(0, slotHighlight[cData.type][0]);
-				grd2.addColorStop(1, slotHighlight[cData.type][1]);
-				uCtx.setTransform(1, 0, -((10 * Math.PI) / 180), 1, cSlot.pos.x + (cSlot.baseWidth - 4 - 200) * slotScale, 0);
-				uCtx.fillStyle = grd2;
-				uCtx.fillRect(0, 0, gradientWidth * slotScale, cSlot.img.height * slotScale);
-				uCtx.fillRect(0, lSlot.pos.y, gradientWidth * slotScale, lSlot.img.height * slotScale);
-
+				if (landScape) {
+					const grd2 = uCtx.createLinearGradient(0, 0, gradientWidth * slotScale, 0);
+					grd2.addColorStop(0, slotHighlight[cData.type][0]);
+					grd2.addColorStop(1, slotHighlight[cData.type][1]);
+					uCtx.setTransform(1, 0, -((10 * Math.PI) / 180), 1, cSlot.pos.x + (cSlot.baseWidth - 4 - 200) * slotScale, 0);
+					uCtx.fillStyle = grd2;
+					uCtx.fillRect(0, 0, gradientWidth * slotScale, cSlot.img.height * slotScale);
+					uCtx.fillRect(0, lSlot.pos.y, gradientWidth * slotScale, lSlot.img.height * slotScale);
+				}
 				//info
 				uCtx.setTransform(1, 0, -((10 * Math.PI) / 180), 1, cSlot.pos.x + (cSlot.baseWidth - 4 - 200) * slotScale, 0);
 				uCtx.font = slotFont.fontStyle + ' ' + slotFont.fontWeight + ' ' + ((slotFont.fontSize/2) * slotScale) + 'px ' + slotFont.fontFamily;
@@ -227,40 +227,82 @@
 			uCtx.setTransform(1, 0, 0, 1, 0, 0);
 
 			//name strip
-			uCtx.fillStyle = "rgba(2, 46, 63, 1)";
-			uCtx.shadowOffsetX = 0;
-			uCtx.shadowOffsetY = 0;
-			uCtx.shadowColor = "rgba(0, 0, 0, 1)";
-			uCtx.shadowBlur = 50 * slotScale;
-			uCtx.fillRect(0, 594 * slotScale, upper_Canvas.width, 196 * slotScale);
-			uCtx.fillStyle = "rgba(255, 222, 106, 1)";
-			uCtx.textAlign = "center";
-			uCtx.textBaseline = "middle";
-			uCtx.shadowColor = "rgba(0, 0, 0, .75)";
-			uCtx.font = mainTitleFont.fontStyle + ' ' + mainTitleFont.fontWeight + ' ' + Math.floor(mainTitleFont.fontSize * slotScale) + 'px ' + mainTitleFont.fontFamily;
-			uCtx.fillText("SZILARD HADOBAS", (upper_Canvas.width / 2), 705*slotScale);
-			uCtx.font = subTitleFont.fontStyle + ' ' + subTitleFont.fontWeight + ' ' + Math.floor(subTitleFont.fontSize * slotScale) + 'px ' + subTitleFont.fontFamily;
-			uCtx.textAlign = "start";
-			uCtx.textBaseline = "top";
-			uCtx.fillText("animator", 50 * slotScale, 695 * slotScale);
-			uCtx.textBaseline = "bottom";
-			uCtx.fillText("senior", 50 * slotScale, 695 * slotScale);
-			uCtx.textAlign = "right";
-			uCtx.textBaseline = "top";
-			uCtx.fillText("artist", upper_Canvas.width - (50 * slotScale), 695 * slotScale);
-			uCtx.textBaseline = "bottom";
-			uCtx.fillText("technical", upper_Canvas.width - (50 * slotScale), 695 * slotScale);
-			if (titleHighlightSize > 0) {
-				uCtx.textAlign = "center";
-				uCtx.textBaseline = "middle";
+			if (landScape) {
+				uCtx.fillStyle = "rgba(2, 46, 63, 1)";
 				uCtx.shadowOffsetX = 0;
 				uCtx.shadowOffsetY = 0;
-				uCtx.shadowColor = "rgba(255, 255, 255, 1)";
-				uCtx.shadowBlur = titleHighlightSize * slotScale;
+				uCtx.shadowColor = "rgba(0, 0, 0, 1)";
+				uCtx.shadowBlur = 50 * slotScale;
+				uCtx.fillRect(0, 594 * slotScale, upper_Canvas.width, 196 * slotScale);
+				uCtx.fillStyle = "rgba(255, 222, 106, 1)";
+				uCtx.textAlign = "center";
+				uCtx.textBaseline = "middle";
+				uCtx.shadowColor = "rgba(0, 0, 0, .75)";
 				uCtx.font = mainTitleFont.fontStyle + ' ' + mainTitleFont.fontWeight + ' ' + Math.floor(mainTitleFont.fontSize * slotScale) + 'px ' + mainTitleFont.fontFamily;
-				uCtx.fillText("SZILARD HADOBAS", (upper_Canvas.width / 2), 705 * slotScale);
+				uCtx.fillText("SZILARD HADOBAS", (upper_Canvas.width / 2), 705*slotScale);
+				uCtx.font = subTitleFont.fontStyle + ' ' + subTitleFont.fontWeight + ' ' + Math.floor(subTitleFont.fontSize * slotScale) + 'px ' + subTitleFont.fontFamily;
+				uCtx.textAlign = "start";
+				uCtx.textBaseline = "top";
+				uCtx.fillText("animator", 50 * slotScale, 695 * slotScale);
+				uCtx.textBaseline = "bottom";
+				uCtx.fillText("senior", 50 * slotScale, 695 * slotScale);
+				uCtx.textAlign = "right";
+				uCtx.textBaseline = "top";
+				uCtx.fillText("artist", upper_Canvas.width - (50 * slotScale), 695 * slotScale);
+				uCtx.textBaseline = "bottom";
+				uCtx.fillText("technical", upper_Canvas.width - (50 * slotScale), 695 * slotScale);
+				if (titleHighlightSize > 0) {
+					uCtx.textAlign = "center";
+					uCtx.textBaseline = "middle";
+					uCtx.shadowOffsetX = 0;
+					uCtx.shadowOffsetY = 0;
+					uCtx.shadowColor = "rgba(255, 255, 255, 1)";
+					uCtx.shadowBlur = titleHighlightSize * slotScale;
+					uCtx.font = mainTitleFont.fontStyle + ' ' + mainTitleFont.fontWeight + ' ' + Math.floor(mainTitleFont.fontSize * slotScale) + 'px ' + mainTitleFont.fontFamily;
+					uCtx.fillText("SZILARD HADOBAS", (upper_Canvas.width / 2), 705 * slotScale);
+				}
+				uCtx.restore();
+			} else {
+				uCtx.fillStyle = "rgba(2, 46, 63, 1)";
+				uCtx.shadowOffsetX = 0;
+				uCtx.shadowOffsetY = 0;
+				uCtx.shadowColor = "rgba(0, 0, 0, 1)";
+				uCtx.shadowBlur = 0;
+//				uCtx.fillRect(0, 594 * slotScale, upper_Canvas.width, 196 * slotScale);
+				uCtx.fillRect(0, 594 * slotScale, upper_Canvas.width, upper_Canvas.height);
+				uCtx.shadowBlur = 50 * slotScale;
+				uCtx.fillRect(0, 594 * slotScale, upper_Canvas.width, 300 * slotScale);
+				uCtx.fillStyle = "rgba(255, 222, 106, 1)";
+				uCtx.textAlign = "center";
+				uCtx.textBaseline = "middle";
+				uCtx.shadowColor = "rgba(0, 0, 0, .75)";
+				uCtx.font = mainTitleFont.fontStyle + ' ' + mainTitleFont.fontWeight + ' ' + Math.floor(mainTitleFont.fontSize * slotScale) + 'px ' + mainTitleFont.fontFamily;
+				uCtx.fillText("SZILARD", (upper_Canvas.width / 2), 700*slotScale);
+				uCtx.fillText("HADOBAS", (upper_Canvas.width / 2), 820*slotScale);
+				uCtx.font = subTitleFont.fontStyle + ' ' + subTitleFont.fontWeight + ' ' + Math.floor(subTitleFont.fontSize * slotScale) + 'px ' + subTitleFont.fontFamily;
+				uCtx.textAlign = "start";
+				uCtx.textBaseline = "top";
+				uCtx.fillText("animator", 50 * slotScale, 980 * slotScale);
+				uCtx.textBaseline = "bottom";
+				uCtx.fillText("senior", 50 * slotScale, 980 * slotScale);
+				uCtx.textAlign = "right";
+				uCtx.textBaseline = "top";
+				uCtx.fillText("artist", upper_Canvas.width - (50 * slotScale), 980 * slotScale);
+				uCtx.textBaseline = "bottom";
+				uCtx.fillText("technical", upper_Canvas.width - (50 * slotScale), 980 * slotScale);
+				if (titleHighlightSize > 0) {
+					uCtx.textAlign = "center";
+					uCtx.textBaseline = "middle";
+					uCtx.shadowOffsetX = 0;
+					uCtx.shadowOffsetY = 0;
+					uCtx.shadowColor = "rgba(255, 255, 255, 1)";
+					uCtx.shadowBlur = titleHighlightSize * slotScale;
+					uCtx.font = mainTitleFont.fontStyle + ' ' + mainTitleFont.fontWeight + ' ' + Math.floor(mainTitleFont.fontSize * slotScale) + 'px ' + mainTitleFont.fontFamily;
+					uCtx.fillText("SZILARD", (upper_Canvas.width / 2), 700*slotScale);
+					uCtx.fillText("HADOBAS", (upper_Canvas.width / 2), 820*slotScale);
+				}
+				uCtx.restore();
 			}
-			uCtx.restore();
 
 			if (globalFade != 0) drawGlobalFade();
 			
@@ -319,9 +361,92 @@
 				var grabIx = slots[slotAssignment[slotHit]].pos.x;
 				reCenterSlots(slotHit, grabIx);
 			}
+			if (upper_Canvas.height > upper_Canvas.width) {
+				landScape = false; 
+				titleRelative = {x:0, y:0.55, w:1, h:0.28};				
+			} else {
+				landScape = true; 
+				titleRelative = {x:0, y:0.55, w:1, h:0.18};
+			}
+			
 			window.requestAnimationFrame(draw);
 			
 		});		
+		
+		addEventListener("touchstart", (e) => {
+			scrollSpeed = 0;
+			slotHit = -1;
+			grabSlot = -1;
+			if ((e.touches[0].clientY > (titleRelative.y*cont_height)) && (e.touches[0].clientY < ((titleRelative.y + titleRelative.h)*cont_height))) {
+				//kattintas a titlebar-ra
+				
+				window.location.href = "/body";
+			} else {
+				//kattintas a slotokra
+				for (var i = slots.length-1; i >= 0; i--) {
+					if (slots[slotAssignment[i]].isHit(e.touches[0].clientX, e.touches[0].clientY)) {
+						slotHit = i;
+					}
+				}
+				if (slotHit == -1) {
+					for (var i = slots.length-1; i >= 0; i--) {
+						if (lowerSlots[slotAssignment[i]].isHit(e.touches[0].clientX, e.touches[0].clientY)) {
+							slotHit = i;
+						}
+					}
+				}
+				grabIx = slots[slotAssignment[slotHit]].pos.x;
+				if (grabIx != -1) {
+					grabSlot = slotAssignment[slotHit];
+					reCenterSlots(slotHit, grabIx);
+					grabPos = e.touches[0].clientX;
+					mouseState = 1;
+				}
+			}			
+		});
+
+		addEventListener("touchmove", (e) => {
+			lastCursor.x = cursor.x;
+			if (mouseState == 0) {
+				if ((e.touches[0].clientY > (titleRelative.y*cont_height)) && (e.touches[0].clientY < ((titleRelative.y + titleRelative.h)*cont_height))) {
+					titleHighlightTarget = 25;
+				} else {
+					titleHighlightTarget = 0;
+				}
+			} else {
+				if (mouseState == 1) {
+					mouseState = 2;
+				}
+				if (mouseState == 2) {
+					var delta = e.touches[0].clientX - grabPos;
+					if (delta < -upper_Canvas.width) {
+						delta = -upper_Canvas.width;
+					} else if (delta > upper_Canvas.width) {
+						delta = upper_Canvas.width;
+					}
+					cpos = slotAssignment.indexOf(grabSlot);
+					slots[slotAssignment[cpos]].pos.x = grabIx + delta;
+					slotPosUpdate(cpos);
+				}
+			}
+			cursor.x = e.touches[0].clientX;
+		});			
+		
+		addEventListener("touchend", (e) => {
+			if (mouseState == 2) {
+				var delta = e.changedTouches[0].clientX - grabPos;
+//				ix = grabIx + delta;
+				scrollSpeed = e.changedTouches[0].clientX - lastCursor.x;
+				if (scrollSpeed < 0) {
+					scrollSpeed *= -1;
+					scrollSpeedDir = -1;
+				} else {
+					scrollSpeedDir = 1;
+				}
+				//end scroll
+			}
+			mouseState = 0;
+		});
 		
 		addEventListener("mousedown", (e) => {
 			scrollSpeed = 0;
@@ -526,7 +651,7 @@
 			{
 				id: 9,
 				upper_image_link: "https://lh3.googleusercontent.com/drive-viewer/AK7aPaAKXmJ9DDT0KpI9oG2MTFZ2j5OZIrFXitxsqHWwOXCuCcgDsSDPX9QoR6J0UUk5LlS-o3_AR_kJSNJoZfv1F0-9idJHhA=s2560",
-				lower_image_link: "https://lh3.googleusercontent.com/drive-viewer/AK7aPaAKXmJ9DDT0KpI9oG2MTFZ2j5OZIrFXitxsqHWwOXCuCcgDsSDPX9QoR6J0UUk5LlS-o3_AR_kJSNJoZfv1F0-9idJHhA=s2560",
+				lower_image_link: "https://lh3.googleusercontent.com/drive-viewer/AK7aPaA0xyP59Ns-LDMeSb9p1QNzRqrV3DFnCpyJVCDrd34vUXSEiRs-o_1GwGmCALAE2AkiPXpzT9RF3VxCQcsb-TuTkUkF=s2560",
 				width: 578,
 				baseWidth: 471,
 				type: "VFX",
@@ -721,6 +846,7 @@
 		var globalFadeTarget = 0;
 		var globalFade = 1;
 		var globalFadeDamping = 0.05;
+		var landScape = true;
 		
 		upper_Canvas = document.getElementById("upper_canvas");
 		uCtx = upper_Canvas.getContext("2d");
@@ -729,8 +855,12 @@
 		var cont_height = cont_positionInfo.height;
 		var cont_width = cont_positionInfo.width;
 		upper_Canvas.width = cont_width;
-		upper_Canvas.height = cont_height;
+		upper_Canvas.height = cont_height;		
 		slotScale = upper_Canvas.height / 1080;
+		if (upper_Canvas.height > upper_Canvas.width) {
+			landScape = false;
+			titleRelative = {x:0, y:0.55, w:1, h:0.28};
+		}
 
 		
 		init();
