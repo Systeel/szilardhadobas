@@ -991,6 +991,39 @@
 				mouseState = 1;
 				sliderHighlight = '#ffde6a';
 			}); // click and hold to pan
+
+			sld_Canvas.addEventListener("touchstart", (e) => {
+				grabPos = e.touches[0].clientX;
+				mouseState = 1;
+				sliderHighlight = '#ffde6a';
+			}); // touch and hold to pan
+			
+			addEventListener("touchmove", (e) => {
+				if (mouseState == 0) {
+					var cont_positionInfo = sld_Canvas.getBoundingClientRect();
+					if ((e.touches[0].clientX > cont_positionInfo.x) && (e.touches[0].clientX <= (cont_positionInfo.x + sld_Canvas.width * 0.25)) && (e.touches[0].clientY > cont_positionInfo.top) && (e.touches[0].clientY < cont_positionInfo.bottom)) {
+						sliderHighlight = '#ffde6a';
+					} else {
+						sliderHighlight = '#455D7A';
+					}
+					drawCanvas();
+				} else {
+					sliderPos = e.touches[0].clientX - grabPos;
+					sliderPos = (sliderPos < 0) ? 0 : (sliderPos > Math.floor(sld_Canvas.width * 0.75) ? Math.floor(sld_Canvas.width * 0.75) : sliderPos);
+					if (sliderPos >= Math.floor(sld_Canvas.width * 0.75)) {
+						sliderHighlight = "#59f964";
+					} else {
+						sliderHighlight = '#ffde6a';						
+					}
+					drawCanvas();
+				}
+			});				
+
+			addEventListener("touchend", (e) => {
+				if (mouseState == 1) {
+					releaseSlider();
+				}
+			});
 			
 			addEventListener("mousemove", (e) => {
 				if (mouseState == 0) {
@@ -1012,62 +1045,67 @@
 					drawCanvas();
 				}
 			});		
+
+			
 			addEventListener("mouseup", (e) => {
 				if (mouseState == 1) {
-					if (sliderPos >= Math.floor(sld_Canvas.width * 0.75)) {
-						if ((validateEmail(document.getElementById("tg").value)) && (document.getElementById("oj").value.length > 0) && (document.getElementById("mg").value.length > 0)) {
-							fetch('/uzenet',{
-								method : "put",
-								headers : {
-									"Content-Type" : "application/json; charset=utf-8"
-								},
-								body : JSON.stringify({
-									"tg": document.getElementById("tg").value,
-									"oj": document.getElementById("oj").value,
-									"mg": document.getElementById("mg").value
-								})
-							}).then((response)=>{
-								if (!response.ok) {
-									throw Error(response.statusText);
-								}			
-								return response.json();
-							}).then((data)=>{
-								if (data.error) {
-									console.error(data.error.message);
-									alert(data.error.message);
-									sliderHighlight = '#455D7A';
-									mouseState = 0;
-									sliderPos = 0;
-									drawCanvas();
-									
-								} else {
-									alert("Invitation has been sent.");
-									$('#collapseMessage').collapse('hide');
-									sliderHighlight = '#455D7A';
-									mouseState = 0;
-									sliderPos = 0;
-									drawCanvas();
-								}
-							});							
-						} else {
-							sliderHighlight = '#455D7A';
-							mouseState = 0;
-							sliderPos = 0;
-							drawCanvas();
-						}
-					} 
-					sliderHighlight = '#455D7A';
-					mouseState = 0;
-					sliderPos = 0;
-					drawCanvas();
+					releaseSlider();
+				}
+			});
 
+			function releaseSlider() {
+				if (sliderPos >= Math.floor(sld_Canvas.width * 0.75)) {
+					if ((validateEmail(document.getElementById("tg").value)) && (document.getElementById("oj").value.length > 0) && (document.getElementById("mg").value.length > 0)) {
+						fetch('/uzenet',{
+							method : "put",
+							headers : {
+								"Content-Type" : "application/json; charset=utf-8"
+							},
+							body : JSON.stringify({
+								"tg": document.getElementById("tg").value,
+								"oj": document.getElementById("oj").value,
+								"mg": document.getElementById("mg").value
+							})
+						}).then((response)=>{
+							if (!response.ok) {
+								throw Error(response.statusText);
+							}			
+							return response.json();
+						}).then((data)=>{
+							if (data.error) {
+								console.error(data.error.message);
+								alert(data.error.message);
+								sliderHighlight = '#455D7A';
+								mouseState = 0;
+								sliderPos = 0;
+								drawCanvas();
+								
+							} else {
+								alert("Invitation has been sent.");
+								document.getElementById("tg").value = "";
+								document.getElementById("oj").value = "";
+								document.getElementById("mg").value = "";
+								$('#collapseMessage').collapse('hide');
+								sliderHighlight = '#455D7A';
+								mouseState = 0;
+								sliderPos = 0;
+								drawCanvas();
+							}
+						});							
+					} else {
+						sliderHighlight = '#455D7A';
+						mouseState = 0;
+						sliderPos = 0;
+						drawCanvas();
+					}
 				} else {
 					sliderHighlight = '#455D7A';
 					mouseState = 0;
 					sliderPos = 0;
 					drawCanvas();
 				}
-			});
+			}
+
 			
 			function openImageDisplay(imageList = []) {
 				var imd = document.getElementById("imgview01");
