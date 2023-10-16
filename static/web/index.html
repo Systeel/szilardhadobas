@@ -192,14 +192,16 @@
 				uCtx.setTransform(1, 0, -((10 * Math.PI) / 180), 1, cSlot.pos.x + (100 + 16) * slotScale, 0);
 				uCtx.fillStyle = grd;
 				uCtx.fillRect(0, 0, gradientWidth * slotScale, cSlot.img.height * slotScale);
-				uCtx.fillRect(0, lSlot.pos.y, gradientWidth * slotScale, lSlot.img.height * slotScale);
 				if (landScape) {
-					const grd2 = uCtx.createLinearGradient(0, 0, gradientWidth * slotScale, 0);
-					grd2.addColorStop(0, slotHighlight[cData.type][0]);
-					grd2.addColorStop(1, slotHighlight[cData.type][1]);
-					uCtx.setTransform(1, 0, -((10 * Math.PI) / 180), 1, cSlot.pos.x + (cSlot.baseWidth - 4 - 200) * slotScale, 0);
-					uCtx.fillStyle = grd2;
-					uCtx.fillRect(0, 0, gradientWidth * slotScale, cSlot.img.height * slotScale);
+					uCtx.fillRect(0, lSlot.pos.y, gradientWidth * slotScale, lSlot.img.height * slotScale);
+				}
+				const grd2 = uCtx.createLinearGradient(0, 0, gradientWidth * slotScale, 0);
+				grd2.addColorStop(0, slotHighlight[cData.type][0]);
+				grd2.addColorStop(1, slotHighlight[cData.type][1]);
+				uCtx.setTransform(1, 0, -((10 * Math.PI) / 180), 1, cSlot.pos.x + (cSlot.baseWidth - 4 - 200) * slotScale, 0);
+				uCtx.fillStyle = grd2;
+				uCtx.fillRect(0, 0, gradientWidth * slotScale, cSlot.img.height * slotScale);
+				if (landScape) {
 					uCtx.fillRect(0, lSlot.pos.y, gradientWidth * slotScale, lSlot.img.height * slotScale);
 				}
 				//info
@@ -368,7 +370,7 @@
 			}
 			var slotHit = -1;
 			for (var i = slots.length-1; i >= 0; i--) {
-				if (slots[slotAssignment[i]].isHit(Math.floor(100), 1)) {
+				if (slots[slotAssignment[i]].isHit((upper_Canvas.width / 2), 10)) {
 					slotHit = i;
 				}
 			}
