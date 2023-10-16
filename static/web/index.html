@@ -369,10 +369,15 @@
 				lowerSlots[i].pos.y = upper_Canvas.height - 300 * slotScale;
 			}
 			var slotHit = -1;
-			for (var i = slots.length-1; i >= 0; i--) {
-				if (slots[slotAssignment[i]].isHit((upper_Canvas.width / 2), 10)) {
-					slotHit = i;
+			var spread = 0;
+			while (slotHit == -1) {
+				var rnd = Math.random() * 2 * spread - spread;
+				for (var i = slots.length-1; i >= 0; i--) {
+					if (slots[slotAssignment[i]].isHit((Math.floor(upper_Canvas.width) / 2 + rnd), 10)) {
+						slotHit = i;
+					}
 				}
+				spread = spread + 1;
 			}
 			if (slotHit != -1) {
 				var grabIx = slots[slotAssignment[slotHit]].pos.x;
