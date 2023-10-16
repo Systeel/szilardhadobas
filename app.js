@@ -3,6 +3,7 @@ const bodyParser = require("body-parser");
 const app = express();
 const path = require('path');
 const nodemailer = require('nodemailer');
+const url = require('url');
 var transporter = nodemailer.createTransport({
 	service: 'gmail',
 	auth: {
@@ -23,7 +24,13 @@ app.get('/', (req, res) => {
 });
 
 app.get('/body', (req, res) => {
-	res.sendFile(path.join(__dirname,'/static/web/body.html'));
+	var url_parts = url.parse(req.url, true);
+	var dType = url_parts.query.deviceType;
+	if (dType == 'true') {
+		res.sendFile(path.join(__dirname,'/static/web/bodyMobile.html'));
+	} else {
+		res.sendFile(path.join(__dirname,'/static/web/body.html'));
+	}
 });
 
 app.put('/uzenet', (req, res) => {
