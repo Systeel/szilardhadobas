@@ -167,14 +167,17 @@
 			uCtx.shadowOffsetY = 5;
 			uCtx.shadowColor = "rgba(0, 0, 0, .75)";
 			uCtx.shadowBlur = 40 * slotScale;
+			var c = 0;
 			for (var i = slots.length - 1; i >= 0; i--) {
 				currSlot = slots[slotAssignment[i]];
 				lowerSlots[slotAssignment[i]].pos.x = currSlot.pos.x - 135 * slotScale;
 				if ((currSlot.pos.x <= (upper_Canvas.width + 80)) && ((currSlot.pos.x + currSlot.width * slotScale) > -20)) {
 					currSlot.draw(uCtx);
+					c += 1;
 					if (landScape) lowerSlots[slotAssignment[i]].draw(uCtx);
 				}
 			}			
+			console.log(c);
 			//slot highlight 
 			if (mouseState >= 1) {
 				var gs = slotAssignment.indexOf(grabSlot);
@@ -820,8 +823,8 @@
 			},
 			{
 				id: 19,
-				upper_image_link: "https://drive.google.com/uc?export=view&id=1iZfrVEbWZVCM6htrzKznU7q_HjNI_i00",
-				lower_image_link: "https://drive.google.com/uc?export=view&id=1t7yDT9Or1dKB5pXmeLmNSeBNt10RP2oG",
+				upper_image_link: "https://drive.google.com/uc?export=view&id=1KnZykBJHPGxX1hwDy663jg30R_MxIt_k",
+				lower_image_link: "https://drive.google.com/uc?export=view&id=1ioOrTdAkLV9t6AHlSn2RLfqsJk3qA4uP",
 				width: 578,
 				baseWidth: 471,
 				type: "game",
