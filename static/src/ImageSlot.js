@@ -19,7 +19,6 @@ class ImageSlot {
 			if (self.height == -1) {
 				self.height = self.tempImg.height;
 			}
-			console.log("loadTemp");
 		};
 		this.img.onload = function(e){
 			if (self.width == -1) {
@@ -46,7 +45,6 @@ class ImageSlot {
 		if (this.loaded) {
 			ctx.drawImage(this.img, this.pos.x, this.pos.y, this.width*this.scale, this.height*this.scale);
 		} else {
-			console.log(this.height, this.width, this.scale);
 			ctx.drawImage(this.tempImg, this.pos.x, this.pos.y, this.width*this.scale, this.height*this.scale);
 		}
 	}
