@@ -33,7 +33,6 @@
 		document.cookie = "name=SzilardHadobas; SameSite=None; Secure";
 	
 //		document.cookie = "SameSite=None, Secure"
-		console.log(document.cookie);
 		function init() {
 			//loading fonts
 			uCtx.save();
@@ -115,7 +114,7 @@
 			} else {
 				titleHighlightSize = titleHighlightTarget;
 			}
-			if (mouseState == 0) {
+			if ((mouseState == 0) || (mouseState == 3)) {
 				if (Math.abs(scrollSpeed - scrollSpeedTarget) > 0.1)  {
 					if (scrollSpeed > scrollSpeedTarget) {
 						scrollSpeed -= (scrollSpeed - scrollSpeedTarget) * scrollDamping;
@@ -183,7 +182,7 @@
 				}
 			}			
 			//slot highlight 
-			if (mouseState >= 1) {
+			if ((mouseState == 1) || (mouseState == 2)) {
 				var gs = slotAssignment.indexOf(grabSlot);
 				const cSlot = slots[slotAssignment[gs]];
 				const lSlot = lowerSlots[slotAssignment[gs]];
@@ -408,7 +407,8 @@
 			grabSlot = -1;
 			if ((e.touches[0].clientY > (titleRelative.y*cont_height)) && (e.touches[0].clientY < ((titleRelative.y + titleRelative.h)*cont_height))) {
 				//kattintas a titlebar-ra
-				window.location.href = "/body?deviceType=" + mobileCheck().toString();
+				titleHighlightTarget = 25;
+				mouseState = 3;
 			} else {
 				//kattintas a slotokra
 				for (var i = slots.length-1; i >= 0; i--) {
@@ -435,7 +435,7 @@
 
 		addEventListener("touchmove", (e) => {
 			lastCursor.x = cursor.x;
-			if (mouseState == 0) {
+			if (mouseState == 3) {
 				if ((e.touches[0].clientY > (titleRelative.y*cont_height)) && (e.touches[0].clientY < ((titleRelative.y + titleRelative.h)*cont_height))) {
 					titleHighlightTarget = 25;
 				} else {
@@ -461,6 +461,12 @@
 		});			
 		
 		addEventListener("touchend", (e) => {
+			if (mouseState == 3) {
+				if ((e.changedTouches[0].clientY > (titleRelative.y*cont_height)) && (e.changedTouches[0].clientY < ((titleRelative.y + titleRelative.h)*cont_height))) {
+					//kattintas a titlebar-ra
+					window.location.href = "/body?deviceType=" + mobileCheck().toString();
+				}		
+			}
 			if (mouseState == 2) {
 				var delta = e.changedTouches[0].clientX - grabPos;
 //				ix = grabIx + delta;
@@ -481,8 +487,8 @@
 			slotHit = -1;
 			grabSlot = -1;
 			if ((e.clientY > (titleRelative.y*cont_height)) && (e.clientY < ((titleRelative.y + titleRelative.h)*cont_height))) {
+				mouseState = 3;
 				//kattintas a titlebar-ra
-				window.location.href = "/body?deviceType=" + mobileCheck().toString();
 			} else {
 				//kattintas a slotokra
 				for (var i = slots.length-1; i >= 0; i--) {
@@ -508,7 +514,7 @@
 		}); // click and hold to pan
 		addEventListener("mousemove", (e) => {
 			lastCursor.x = cursor.x;
-			if (mouseState == 0) {
+			if ((mouseState == 0) || (mouseState == 3)) {
 				if ((e.clientY > (titleRelative.y*cont_height)) && (e.clientY < ((titleRelative.y + titleRelative.h)*cont_height))) {
 					titleHighlightTarget = 25;
 				} else {
@@ -533,6 +539,11 @@
 			cursor.x = e.clientX;
 		});		
 		addEventListener("mouseup", (e) => {
+			if (mouseState == 3) {
+				if ((e.clientY > (titleRelative.y*cont_height)) && (e.clientY < ((titleRelative.y + titleRelative.h)*cont_height))) {
+					window.location.href = "/body?deviceType=" + mobileCheck().toString();
+				}
+			}
 			if (mouseState == 2) {
 				var delta = e.clientX - grabPos;
 //				ix = grabIx + delta;
