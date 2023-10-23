@@ -890,8 +890,9 @@
 		uCtx = upper_Canvas.getContext("2d");
 		up_container = document.getElementById("upper_container");
 		var cont_positionInfo = up_container.getBoundingClientRect();
-		console.log(cont_positionInfo);
-		var cont_height = cont_positionInfo.height;
+//		console.log(cont_positionInfo);
+//		var cont_height = cont_positionInfo.height;
+		var cont_height = window.innerHeight;
 		var cont_width = cont_positionInfo.width;
 		upper_Canvas.width = cont_width;
 		upper_Canvas.height = cont_height;		
