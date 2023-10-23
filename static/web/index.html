@@ -9,7 +9,7 @@
 	<link href='https://fonts.googleapis.com/css?family=Amatic+SC' rel='stylesheet' type='text/css'>		
 	<style type="text/css">
         html, body {
-            height: 100%;
+            height: 100svh;
             padding:0;
             margin: 0;
             overflow: hidden;     
@@ -879,6 +879,7 @@
 		uCtx = upper_Canvas.getContext("2d");
 		up_container = document.getElementById("upper_container");
 		var cont_positionInfo = up_container.getBoundingClientRect();
+		console.log(cont_positionInfo);
 		var cont_height = cont_positionInfo.height;
 		var cont_width = cont_positionInfo.width;
 		upper_Canvas.width = cont_width;
