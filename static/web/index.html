@@ -29,9 +29,12 @@
 	</div>
 	<script src="/src/ImageSlot.js"></script>	
 	<script>
+//		document.cookie = "SameSite=None; Secure";
+		document.cookie = "name=SzilardHadobas; SameSite=None; Secure";
+	
+//		document.cookie = "SameSite=None, Secure"
+		console.log(document.cookie);
 		function init() {
-			document.cookie = document.cookie + ";SameSite=None; Secure;"
-			console.log(document.cookie);
 			//loading fonts
 			uCtx.save();
 			uCtx.fillStyle = "rgba(0, 0, 0, 1)";
