@@ -4,12 +4,23 @@ class ImageSlot {
 		this.id = o.id;
 		this.pos = {x:0, y:0};
 		this.link = o.link;
+		this.tempImg = (new Image());
+		this.tempImg.src = o.temp || "img/landing_load_tile.png";
 		this.img = (new Image());
 		this.width = o.width || -1;
 		this.height = o.height || -1;
 		this.scale = o.scale || 1;
 		this.baseWidth = o.baseWidth;
 		this.loaded = false;
+		this.tempImg.onload = function(e) {
+			if (self.width == -1) {
+				self.width = self.tempImg.width;
+			}
+			if (self.height == -1) {
+				self.height = self.tempImg.height;
+			}
+			console.log("loadTemp");
+		};
 		this.img.onload = function(e){
 			if (self.width == -1) {
 				self.width = self.img.width;
@@ -21,7 +32,7 @@ class ImageSlot {
 		}
 		this.error = this.img.onerror = function(e){
 			self.loaded = false;
-		}
+		}		
 	}
 
 	loadImage(link) {
@@ -34,6 +45,9 @@ class ImageSlot {
 	draw(ctx) {
 		if (this.loaded) {
 			ctx.drawImage(this.img, this.pos.x, this.pos.y, this.width*this.scale, this.height*this.scale);
+		} else {
+			console.log(this.height, this.width, this.scale);
+			ctx.drawImage(this.tempImg, this.pos.x, this.pos.y, this.width*this.scale, this.height*this.scale);
 		}
 	}
 	

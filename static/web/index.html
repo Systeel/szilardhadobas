@@ -49,7 +49,7 @@
 			slotAssignment.length = 0;
 			for (var i = 0; i < slotData.length; i++) {
 				slots.push(new ImageSlot({id: slotData[i].id, link: slotData[i].upper_image_link, scale:slotScale, width:slotData[i].width, baseWidth:slotData[i].baseWidth}));
-				lowerSlots.push(new ImageSlot({id: slotData[i].id, link: slotData[i].lower_image_link, scale: slotScale, width: slotData[i].width, baseWidth:slotData[i].baseWidth}));
+				lowerSlots.push(new ImageSlot({id: slotData[i].id, link: slotData[i].lower_image_link, scale: slotScale, width: slotData[i].width, baseWidth:slotData[i].baseWidth, temp:"img/landing_load_name.png"}));
 				slotsWidth += (slotData[i].baseWidth - 10) * slotScale;
 				slotAssignment.push(i);
 			}
@@ -177,7 +177,6 @@
 					if (landScape) lowerSlots[slotAssignment[i]].draw(uCtx);
 				}
 			}			
-			console.log(c);
 			//slot highlight 
 			if (mouseState >= 1) {
 				var gs = slotAssignment.indexOf(grabSlot);
@@ -733,8 +732,8 @@
 			},
 			{
 				id: 13,
-				upper_image_link: "https://drive.google.com/uc?export=view&id=1r8P8xrOtdbefTC9nv2iYCsI0dADxzAnS",
-				lower_image_link: "https://drive.google.com/uc?export=view&id=1Hj14Z5RZ-Xt4sS2hdpres3uuF4c84vpG",
+				upper_image_link: "https://drive.google.com/uc?export=view&id=1bCyJpBtLJDy7w3OzbL33-is7GXIYXuX0",
+				lower_image_link: "https://drive.google.com/uc?export=view&id=1Dz33nCXR5261YSLnjgDj-RA3XLFjv7wB",
 				width: 579,
 				baseWidth: 472,
 				type: "feature",
