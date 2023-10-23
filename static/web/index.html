@@ -364,7 +364,8 @@
 
 		addEventListener('resize', () => {
 			cont_positionInfo = up_container.getBoundingClientRect();
-			cont_height = cont_positionInfo.height;
+//			cont_height = cont_positionInfo.height;
+			cont_height = window.innerHeight;
 			cont_width = cont_positionInfo.width;
 			upper_Canvas.width = cont_width;
 			upper_Canvas.height = cont_height;
