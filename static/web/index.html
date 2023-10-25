@@ -181,6 +181,36 @@
 					if (landScape) lowerSlots[slotAssignment[i]].draw(uCtx);
 				}
 			}			
+
+			//slot hover
+			if ((mouseState == 0) && (grabSlot >= 0)) {
+				var gs = slotAssignment.indexOf(grabSlot);
+				const cSlot = slots[slotAssignment[gs]];
+				const lSlot = lowerSlots[slotAssignment[gs]];
+				const cData = slotData[slotAssignment[gs]];
+				uCtx.shadowOffsetX = 0;
+				uCtx.shadowOffsetY = 0;
+				uCtx.shadowColor = "rgba(0, 0, 0, 0)";
+				uCtx.shadowBlur = 0;
+				const grd = uCtx.createLinearGradient(0, (cSlot.img.height - gradientWidth / 2) * slotScale, 0, cSlot.img.height * slotScale);				
+				grd.addColorStop(0, slotHighlight[cData.type][0]);
+				grd.addColorStop(1, slotHighlight[cData.type][1]);
+				uCtx.setTransform(1, 0, -((10 * Math.PI) / 180), 1, cSlot.pos.x + (100 + 16) * slotScale, 0);
+				uCtx.fillStyle = grd;
+				uCtx.fillRect(0, (cSlot.img.height - gradientWidth / 2) * slotScale, (cSlot.baseWidth - 20) * slotScale, gradientWidth / 2 * slotScale);
+				if (landScape) {
+					const grd = uCtx.createLinearGradient(0, lSlot.pos.y, 0, lSlot.pos.y + gradientWidth / 2 * slotScale);				
+					grd.addColorStop(0, slotHighlight[cData.type][1]);
+					grd.addColorStop(1, slotHighlight[cData.type][0]);
+					uCtx.setTransform(1, 0, -((10 * Math.PI) / 180), 1, cSlot.pos.x + (100 + 16) * slotScale, 0);
+					uCtx.fillStyle = grd;
+					uCtx.fillRect(0, lSlot.pos.y, (cSlot.baseWidth - 20) * slotScale, gradientWidth / 2 * slotScale);
+				}
+
+
+				
+			}				
+			
 			//slot highlight 
 			if ((mouseState == 1) || (mouseState == 2)) {
 				var gs = slotAssignment.indexOf(grabSlot);
@@ -320,6 +350,8 @@
 				uCtx.restore();
 			}
 
+		
+			
 			if (globalFade != 0) drawGlobalFade();
 			
 			lastCursor.x = cursor.x;
@@ -520,6 +552,25 @@
 					titleHighlightTarget = 25;
 				} else {
 					titleHighlightTarget = 0;
+				}
+				if (mouseState == 0) {
+					slotHit = -1;
+					grabSlot = -1;
+					for (var i = slots.length-1; i >= 0; i--) {
+						if (slots[slotAssignment[i]].isHit(e.clientX, e.clientY)) {
+							slotHit = i;
+						}
+					}
+					if (slotHit == -1) {
+						for (var i = slots.length-1; i >= 0; i--) {
+							if (lowerSlots[slotAssignment[i]].isHit(e.clientX, e.clientY)) {
+								slotHit = i;
+							}
+						}
+					}
+					if (grabIx != -1) {
+						grabSlot = slotAssignment[slotHit];
+					}
 				}
 			} else {
 				if (mouseState == 1) {
