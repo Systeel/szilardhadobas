@@ -933,7 +933,7 @@
 				</div>
 
 				
-<!--				<div class="row">
+				<div class="row">
 					<div class="col-5">
 						<hr>
 					</div>
@@ -945,14 +945,14 @@
 					<div class="col-5">
 						<hr>
 					</div>
-					<div class="collapse" id="collapseTravels">       
-						<div class="row">
-							<div class="col-sm">
-								&nbsp;&nbsp;&nbsp;Ide jonnek az utazasok (terkep + klikkelheto lokaciok -> YT)
-							</div>
-						</div>						
+					<div class="collapse" id="collapseTravels" style="padding:0px">       
+						<div class="page-upper" style="width:100%;padding:0px" id="map_container">
+							<canvas id="map_canvas" width=5 height=5 style="background:#000000;padding:0px">  <!-- #022e3f -->
+								Canvas is not supported in this browser.
+							</canvas>
+						</div>
 					</div>				
-				</div> -->
+				</div> 
 				
 				<div class="row">
 					<div class="col-5">
@@ -1012,6 +1012,8 @@
 		</div>
 		<script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
 		<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+		<script src="/src/TravelMap.js"></script>	
+		<script src="/src/flagIcon.js"></script>	
 		<script>
 			var sld_Canvas = document.getElementById("slider_canvas");
 			var sCtx = sld_Canvas.getContext("2d");
@@ -1022,9 +1024,6 @@
 			var sliderPos = 0;
 			var mouseState = 0;
 			var sliderHighlight = '#455D7A';
-			
-	//		upper_Canvas.height = cont_height;
-		
 			var allWorksSelected = false;
 			var imageDisplayData = {
 				opened: false,
@@ -1032,6 +1031,22 @@
 				currentIndex: 0,
 				source_player: undefined
 			}
+			var drawInterval;
+
+			
+			var map_Canvas = document.getElementById("map_canvas");
+			var mapCtx = map_Canvas.getContext("2d");
+			var map_container = document.getElementById("map_container");
+			var tMap = new TravelMap(map_Canvas, mapCtx, map_container, {bg_source:'img/worldmap.jpg'});
+
+			function redrawScreen() {
+				window.requestAnimationFrame(draw);
+			}
+			
+			function draw() {
+				tMap.draw();
+			}
+			
 			$(document).ready(()=>{
 				var parameters = getAllParameters();
 				var defaultReelSelection = "Feature";
@@ -1048,6 +1063,19 @@
 				drawCanvas();
 				
 			});
+			
+			$("#collapseTravels").on('shown.bs.collapse', function() {
+				console.log('INITMAP');
+				tMap.initMap();
+				drawInterval = setInterval(redrawScreen, 80);		
+				
+			});
+			$("#collapseTravels").on('hidden.bs.collapse', function() {
+				console.log('DESTROYMAP');
+				tMap.destroyMap();
+				clearInterval(drawInterval);
+			});
+			
 			$(".interactive").mouseenter(
 			function(){
 				if ($(this)[0].classList.contains("reel")) {
@@ -1098,6 +1126,9 @@
 					var imd = document.getElementById("imgview01");
 				//	var cim = document.getElementById("curr_image");
 					imageDisplayData.source_player.style.height = (Math.floor(imd.offsetHeight-60).toString()+'px');
+				}
+				if (tMap.ready) {
+					tMap.initMap();
 				}
 				updateCanvasSize();
 				drawCanvas();
@@ -1466,7 +1497,8 @@
 				var cont_positionInfo = canv_container.getBoundingClientRect();
 				var cont_height = cont_positionInfo.height;
 				var cont_width = cont_positionInfo.width;
-				sld_Canvas.width = cont_width * 0.5;			
+				sld_Canvas.width = cont_width * 0.5;		
+				
 			}
 			
 			function drawCanvas() {
