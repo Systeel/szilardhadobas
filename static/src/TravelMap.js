@@ -91,7 +91,7 @@ class TravelMap {
 			description: "This week was great to learn the basics of kitesurfing but also very exhausting. Every day on the beach taming the wind swimming up and down in the water. The company was great just like the food.",
 			href: {
 				type: "imageDisplay",
-				imageList: ['https://drive.google.com/uc?export=view&id=1IkA4J4YhbqKyxWnXqgrMSgs1C27sZyuJ','https://drive.google.com/uc?export=view&id=1s93BODuSTQpJjW2fnILFWYX8A_QlKdAk','https://drive.google.com/uc?export=view&id=1ldyIy97Ryym2KOiFwAY31p5kkBvENItp','https://drive.google.com/uc?export=view&id=1KIxis_NHdzmwJkZ0DtLKAeRmOZoNQuNb','https://drive.google.com/uc?export=view&id=10ETrKatFiDzrT3s4KavqX66nQGq9pJvp']
+				imageList: ['img/Travels/Tarifa_2018_IMG_8609.jpg','img/Travels/Tarifa_2018_IMG_7811.jpg','img/Travels/Tarifa_2018_IMG_8797.jpg','img/Travels/Tarifa_2018_IMG_9095.jpg','img/Travels/Tarifa_2018_IMG_9161.jpg']
 			}})
 		];
 		
