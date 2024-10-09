@@ -102,18 +102,26 @@
 			
 		}
 		
+		function highlightchange(size, target) {
+			if (Math.abs(size - target) > 0.1) {
+				if (size < target) {
+					size += (target - size) * titleHighlightDamping;
+				} else {
+					size -= (size - target) * titleHighlightDamping;
+				}
+			} else {
+				size = target;
+			}
+			return size
+		}
+		
 		function draw() {
 			uCtx.save();
 			var deltaX = 0;
-			if (Math.abs(titleHighlightSize - titleHighlightTarget) > 0.1) {
-				if (titleHighlightSize < titleHighlightTarget) {
-					titleHighlightSize += (titleHighlightTarget - titleHighlightSize) * titleHighlightDamping;
-				} else {
-					titleHighlightSize -= (titleHighlightSize - titleHighlightTarget) * titleHighlightDamping;
-				}
-			} else {
-				titleHighlightSize = titleHighlightTarget;
-			}
+		/*	highlightSizes.vfx = highlightchange(highlightSizes.vfx, highlightTargets.vfx);
+			highlightSizes.feature = highlightchange(highlightSizes.feature, highlightTargets.feature);
+			highlightSizes.game = highlightchange(highlightSizes.game, highlightTargets.game);
+			highlightSizes.enter = highlightchange(highlightSizes.enter, highlightTargets.enter);*/
 			if ((mouseState == 0) || (mouseState == 3)) {
 				if (Math.abs(scrollSpeed - scrollSpeedTarget) > 0.1)  {
 					if (scrollSpeed > scrollSpeedTarget) {
@@ -273,32 +281,46 @@
 				uCtx.shadowBlur = 50 * slotScale;
 				uCtx.fillRect(0, 594 * slotScale, upper_Canvas.width, 196 * slotScale);
 				uCtx.fillStyle = "rgba(255, 222, 106, 1)";
-				uCtx.textAlign = "center";
+				uCtx.textAlign = "start";
 				uCtx.textBaseline = "middle";
 				uCtx.shadowColor = "rgba(0, 0, 0, .75)";
 				uCtx.font = mainTitleFont.fontStyle + ' ' + mainTitleFont.fontWeight + ' ' + Math.floor(mainTitleFont.fontSize * slotScale) + 'px ' + mainTitleFont.fontFamily;
-				uCtx.fillText("SZILARD HADOBAS", (upper_Canvas.width / 2), 705*slotScale);
+				uCtx.fillText("SZILARD HADOBAS", (50 * slotScale), 690*slotScale);
 				uCtx.font = subTitleFont.fontStyle + ' ' + subTitleFont.fontWeight + ' ' + Math.floor(subTitleFont.fontSize * slotScale) + 'px ' + subTitleFont.fontFamily;
 				uCtx.textAlign = "start";
 				uCtx.textBaseline = "top";
-				uCtx.fillText("animator", 50 * slotScale, 695 * slotScale);
-				uCtx.textBaseline = "bottom";
-				uCtx.fillText("senior", 50 * slotScale, 695 * slotScale);
-				uCtx.textAlign = "right";
+				uCtx.fillText("senior animator - technical artist", 50 * slotScale, 690 * slotScale + (subTitleFont.fontSize * 0.75) * slotScale);
+				uCtx.textAlign = "end";
 				uCtx.textBaseline = "top";
-				uCtx.fillText("artist", upper_Canvas.width - (50 * slotScale), 695 * slotScale);
-				uCtx.textBaseline = "bottom";
-				uCtx.fillText("technical", upper_Canvas.width - (50 * slotScale), 695 * slotScale);
-				if (titleHighlightSize > 0) {
-					uCtx.textAlign = "center";
+				uCtx.fillText("|", upper_Canvas.width - (50 + 1.65 * subTitleFont.fontSize)* slotScale, 594 * slotScale + (subTitleFont.fontSize / 2) * slotScale);
+				uCtx.fillText("|", upper_Canvas.width - (50 + 4.2 * subTitleFont.fontSize)* slotScale, 594 * slotScale + (subTitleFont.fontSize / 2) * slotScale);
+				uCtx.fillText("REELS:", upper_Canvas.width - (50 + 5.5 * subTitleFont.fontSize) * slotScale, 594 * slotScale + (subTitleFont.fontSize / 2) * slotScale);
+				uCtx.textAlign = "end";
+				uCtx.textBaseline = "top";
+				
+				uCtx.shadowColor = "rgba(255, 255, 255, 1)";
+				uCtx.shadowBlur = highlightTargets.vfx * slotScale;
+				if (highlightTargets.vfx > 0) { uCtx.fillStyle = "rgba(255, 255, 255, 1)"; } else {uCtx.fillStyle = "rgba(255, 222, 106, 1)";}
+				uCtx.fillText("VFX", upper_Canvas.width - (50 + 4.5 * subTitleFont.fontSize) * slotScale, 594 * slotScale + (subTitleFont.fontSize / 2) * slotScale);
+				uCtx.shadowBlur = highlightTargets.feature * slotScale;
+				if (highlightTargets.feature > 0) { uCtx.fillStyle = "rgba(255, 255, 255, 1)"; } else {uCtx.fillStyle = "rgba(255, 222, 106, 1)";}
+				uCtx.fillText("FEATURE", upper_Canvas.width - (50 + 2 * subTitleFont.fontSize)* slotScale, 594 * slotScale + (subTitleFont.fontSize / 2) * slotScale);
+				uCtx.shadowBlur = highlightTargets.game * slotScale;
+				if (highlightTargets.game > 0) { uCtx.fillStyle = "rgba(255, 255, 255, 1)"; } else {uCtx.fillStyle = "rgba(255, 222, 106, 1)";}
+				uCtx.fillText("GAME", upper_Canvas.width - 50 * slotScale, 594 * slotScale + (subTitleFont.fontSize / 2) * slotScale);
+				uCtx.shadowBlur = highlightTargets.enter * slotScale;
+				if (highlightTargets.enter > 0) { uCtx.fillStyle = "rgba(255, 255, 255, 1)"; } else {uCtx.fillStyle = "rgba(255, 222, 106, 1)";}
+				uCtx.fillText("more info...", upper_Canvas.width - 50 * slotScale, 690 * slotScale + (subTitleFont.fontSize * 0.75) * slotScale);
+/*				if (titleHighlightSize > 0) {
+					uCtx.textAlign = "start";
 					uCtx.textBaseline = "middle";
 					uCtx.shadowOffsetX = 0;
 					uCtx.shadowOffsetY = 0;
 					uCtx.shadowColor = "rgba(255, 255, 255, 1)";
 					uCtx.shadowBlur = titleHighlightSize * slotScale;
 					uCtx.font = mainTitleFont.fontStyle + ' ' + mainTitleFont.fontWeight + ' ' + Math.floor(mainTitleFont.fontSize * slotScale) + 'px ' + mainTitleFont.fontFamily;
-					uCtx.fillText("SZILARD HADOBAS", (upper_Canvas.width / 2), 705 * slotScale);
-				}
+					uCtx.fillText("SZILARD HADOBAS", (50 * slotScale), 690*slotScale);
+				}*/
 				uCtx.restore();
 			} else {
 				uCtx.fillStyle = "rgba(2, 46, 63, 1)";
@@ -310,32 +332,29 @@
 				uCtx.fillStyle = "rgba(2, 46, 63, 1)";
 				uCtx.fillRect(0, 594 * slotScale, upper_Canvas.width, upper_Canvas.height);
 				uCtx.shadowBlur = 50 * slotScale;
-				uCtx.fillRect(0, 594 * slotScale, upper_Canvas.width, 300 * slotScale);
+				uCtx.fillRect(0, 594 * slotScale, upper_Canvas.width, 230 * slotScale);
 				uCtx.fillStyle = "rgba(255, 222, 106, 1)";
 				uCtx.textAlign = "center";
 				uCtx.textBaseline = "middle";
 				uCtx.shadowColor = "rgba(0, 0, 0, .75)";
-				uCtx.font = mainTitleFont.fontStyle + ' ' + mainTitleFont.fontWeight + ' ' + Math.floor(mainTitleFont.fontSize * slotScale) + 'px ' + mainTitleFont.fontFamily;
-				uCtx.fillText("SZILARD", (upper_Canvas.width / 2), 700*slotScale);
-				uCtx.fillText("HADOBAS", (upper_Canvas.width / 2), 820*slotScale);
+				uCtx.font = mainTitleFont.fontStyle + ' ' + mainTitleFont.fontWeight + ' ' + Math.floor(mainTitleFont.fontSize * 0.65 * slotScale) + 'px ' + mainTitleFont.fontFamily;
+				uCtx.fillText("SZILARD HADOBAS", (upper_Canvas.width / 2), 700*slotScale);
+				uCtx.font = subTitleFont.fontStyle + ' ' + subTitleFont.fontWeight + ' ' + Math.floor(subTitleFont.fontSize * slotScale) + 'px ' + subTitleFont.fontFamily;
+				uCtx.textAlign = "center";
+				uCtx.textBaseline = "top";
+				uCtx.fillText("senior animator | technical artist", upper_Canvas.width / 2 , ( 705 + subTitleFont.fontSize / 2)* slotScale);
+
 				uCtx.shadowOffsetX = 0;
 				uCtx.shadowOffsetY = 0;
 				uCtx.shadowColor = "rgba(0, 0, 0, 1)";
 				uCtx.shadowBlur = 0;
-				uCtx.fillStyle = "rgba(255, 222, 106, 1)";
-				uCtx.fillRect(Math.floor(upper_Canvas.width/2-1), (894 * slotScale + upper_Canvas.height*0.02), 2, ((upper_Canvas.height - (894 * slotScale)) * 0.8));
-				
-				uCtx.font = subTitleFont.fontStyle + ' ' + subTitleFont.fontWeight + ' ' + Math.floor(subTitleFont.fontSize * slotScale) + 'px ' + subTitleFont.fontFamily;
-				uCtx.textAlign = "right";
+				uCtx.textAlign = "center";
 				uCtx.textBaseline = "top";
-				uCtx.fillText("animator", upper_Canvas.width / 2 - 25, 980 * slotScale);
+				uCtx.font = subTitleFont.fontStyle + ' ' + subTitleFont.fontWeight + ' ' + Math.floor(subTitleFont.fontSize * 1.5 *  slotScale) + 'px ' + subTitleFont.fontFamily;
+				uCtx.fillText("REELS: VFX | FEATURE | GAME", upper_Canvas.width / 2, ( 824 + subTitleFont.fontSize / 2)* slotScale );
+				uCtx.textAlign = "center";
 				uCtx.textBaseline = "bottom";
-				uCtx.fillText("senior", upper_Canvas.width / 2- 25, 980 * slotScale);
-				uCtx.textAlign = "start";
-				uCtx.textBaseline = "top";
-				uCtx.fillText("artist", upper_Canvas.width / 2 + 25, 980 * slotScale);
-				uCtx.textBaseline = "bottom";
-				uCtx.fillText("technical", upper_Canvas.width / 2 + 25, 980 * slotScale);
+				uCtx.fillText("More Info...", upper_Canvas.width / 2,  upper_Canvas.height - 50 * slotScale );
 				if (titleHighlightSize > 0) {
 					uCtx.textAlign = "center";
 					uCtx.textBaseline = "middle";
@@ -344,8 +363,7 @@
 					uCtx.shadowColor = "rgba(255, 255, 255, 1)";
 					uCtx.shadowBlur = titleHighlightSize * slotScale;
 					uCtx.font = mainTitleFont.fontStyle + ' ' + mainTitleFont.fontWeight + ' ' + Math.floor(mainTitleFont.fontSize * slotScale) + 'px ' + mainTitleFont.fontFamily;
-					uCtx.fillText("SZILARD", (upper_Canvas.width / 2), 700*slotScale);
-					uCtx.fillText("HADOBAS", (upper_Canvas.width / 2), 820*slotScale);
+					uCtx.fillText("SZILARD HADOBAS", (upper_Canvas.width / 2), 700*slotScale);
 				}
 				uCtx.restore();
 			}
@@ -424,7 +442,7 @@
 			}
 			if (upper_Canvas.height > upper_Canvas.width) {
 				landScape = false; 
-				titleRelative = {x:0, y:0.55, w:1, h:0.28};				
+				titleRelative = {x:0, y:0.55, w:1, h:0.45};
 			} else {
 				landScape = true; 
 				titleRelative = {x:0, y:0.55, w:1, h:0.18};
@@ -438,9 +456,8 @@
 			scrollSpeed = 0;
 			slotHit = -1;
 			grabSlot = -1;
-			if ((e.touches[0].clientY > (titleRelative.y*cont_height)) && (e.touches[0].clientY < ((titleRelative.y + titleRelative.h)*cont_height))) {
+			if (e.touches[0].clientY > (titleRelative.y*cont_height)) {
 				//kattintas a titlebar-ra
-				titleHighlightTarget = 25;
 				mouseState = 3;
 			} else {
 				//kattintas a slotokra
@@ -495,9 +512,22 @@
 		
 		addEventListener("touchend", (e) => {
 			if (mouseState == 3) {
-				if ((e.changedTouches[0].clientY > (titleRelative.y*cont_height)) && (e.changedTouches[0].clientY < ((titleRelative.y + titleRelative.h)*cont_height))) {
-					//kattintas a titlebar-ra
-					window.location.href = "/body?deviceType=" + mobileCheck().toString();
+				if (e.changedTouches[0].clientY > (titleRelative.y*cont_height)) {
+					if (e.changedTouches[0].clientY > 0.87*cont_height) {
+						window.location.href = "/body?deviceType=" + mobileCheck().toString();
+					} else {
+						if (e.changedTouches[0].clientY > 0.75*cont_height) {
+							if ((e.changedTouches[0].clientX > 0.25*cont_width) && (e.changedTouches[0].clientX < 0.37*cont_width)) {
+								window.location.href = "https://vimeo.com/626887676";
+							}
+							if ((e.changedTouches[0].clientX > 0.42*cont_width) && (e.changedTouches[0].clientX < 0.7*cont_width)) {
+								window.location.href = "https://vimeo.com/1001379816";								
+							}
+							if (e.changedTouches[0].clientX > 0.75*cont_width) {
+								window.location.href = "https://vimeo.com/855250089";
+							}
+						}
+					}
 				}		
 			}
 			if (mouseState == 2) {
@@ -516,46 +546,15 @@
 		});
 		
 		addEventListener("mousedown", (e) => {
-			scrollSpeed = 0;
-			slotHit = -1;
-			grabSlot = -1;
-			if ((e.clientY > (titleRelative.y*cont_height)) && (e.clientY < ((titleRelative.y + titleRelative.h)*cont_height))) {
-				mouseState = 3;
-				//kattintas a titlebar-ra
-			} else {
-				//kattintas a slotokra
-				for (var i = slots.length-1; i >= 0; i--) {
-					if (slots[slotAssignment[i]].isHit(e.clientX, e.clientY)) {
-						slotHit = i;
-					}
-				}
-				if (slotHit == -1) {
-					for (var i = slots.length-1; i >= 0; i--) {
-						if (lowerSlots[slotAssignment[i]].isHit(e.clientX, e.clientY)) {
-							slotHit = i;
-						}
-					}
-				}
-				grabIx = slots[slotAssignment[slotHit]].pos.x;
-				if (grabIx != -1) {
-					grabSlot = slotAssignment[slotHit];
-					reCenterSlots(slotHit, grabIx);
-					grabPos = e.clientX;
-					mouseState = 1;
-				}
-			}
-		}); // click and hold to pan
-		addEventListener("mousemove", (e) => {
-			lastCursor.x = cursor.x;
-			if ((mouseState == 0) || (mouseState == 3)) {
+			if (landScape) {
+				scrollSpeed = 0;
+				slotHit = -1;
+				grabSlot = -1;
 				if ((e.clientY > (titleRelative.y*cont_height)) && (e.clientY < ((titleRelative.y + titleRelative.h)*cont_height))) {
-					titleHighlightTarget = 25;
+					mouseState = 3;
+					//kattintas a titlebar-ra
 				} else {
-					titleHighlightTarget = 0;
-				}
-				if (mouseState == 0) {
-					slotHit = -1;
-					grabSlot = -1;
+					//kattintas a slotokra
 					for (var i = slots.length-1; i >= 0; i--) {
 						if (slots[slotAssignment[i]].isHit(e.clientX, e.clientY)) {
 							slotHit = i;
@@ -568,47 +567,117 @@
 							}
 						}
 					}
+					grabIx = slots[slotAssignment[slotHit]].pos.x;
 					if (grabIx != -1) {
 						grabSlot = slotAssignment[slotHit];
+						reCenterSlots(slotHit, grabIx);
+						grabPos = e.clientX;
+						mouseState = 1;
 					}
-				}
-			} else {
-				if (mouseState == 1) {
-					mouseState = 2;
-				}
-				if (mouseState == 2) {
-					var delta = e.clientX - grabPos;
-					if (delta < -upper_Canvas.width) {
-						delta = -upper_Canvas.width;
-					} else if (delta > upper_Canvas.width) {
-						delta = upper_Canvas.width;
-					}
-					cpos = slotAssignment.indexOf(grabSlot);
-					slots[slotAssignment[cpos]].pos.x = grabIx + delta;
-					slotPosUpdate(cpos);
 				}
 			}
-			cursor.x = e.clientX;
+		}); // click and hold to pan
+		addEventListener("mousemove", (e) => {
+			if (landScape) {
+				lastCursor.x = cursor.x;
+				if ((mouseState == 0) || (mouseState == 3)) {
+					if ((e.clientY > (titleRelative.y*cont_height)) && (e.clientY < ((titleRelative.y + titleRelative.h)*cont_height))) {
+						highlightTargets.game = 0;
+						highlightTargets.feature = 0;
+						highlightTargets.vfx = 0;
+						highlightTargets.enter = 0;				
+						if ((e.clientY > (titleRelative.y*cont_height)) && (e.clientY < ((titleRelative.y + titleRelative.h / 2)*cont_height))) {
+							if ((e.clientX < (upper_Canvas.width - (50 * slotScale))) && (e.clientX > upper_Canvas.width - (50 + 1.5 * subTitleFont.fontSize) * slotScale)) {
+								highlightTargets.game = 25;
+							} 
+							if ((e.clientX < (upper_Canvas.width - (50 + 1.5 * subTitleFont.fontSize) * slotScale)) && (e.clientX > upper_Canvas.width - (50 + 4 * subTitleFont.fontSize) * slotScale)) {
+								highlightTargets.feature = 25;
+							} 
+							if ((e.clientX < (upper_Canvas.width - (50 + 4 * subTitleFont.fontSize) * slotScale)) && (e.clientX > upper_Canvas.width - (50 + 5.5 * subTitleFont.fontSize) * slotScale)) {
+								highlightTargets.vfx = 25;
+							} 						
+						} else {
+							if ((e.clientX < (upper_Canvas.width - 50 * slotScale)) && (e.clientX > upper_Canvas.width - (50 + 3 * subTitleFont.fontSize) * slotScale)) {
+								highlightTargets.enter = 25;
+							} 
+						}
+					} else {
+						highlightTargets.game = 0;
+						highlightTargets.feature = 0;
+						highlightTargets.vfx = 0;
+						highlightTargets.enter = 0;
+					}
+					if (mouseState == 0) {
+						slotHit = -1;
+						grabSlot = -1;
+						for (var i = slots.length-1; i >= 0; i--) {
+							if (slots[slotAssignment[i]].isHit(e.clientX, e.clientY)) {
+								slotHit = i;
+							}
+						}
+						if (slotHit == -1) {
+							for (var i = slots.length-1; i >= 0; i--) {
+								if (lowerSlots[slotAssignment[i]].isHit(e.clientX, e.clientY)) {
+									slotHit = i;
+								}
+							}
+						}
+						if (grabIx != -1) {
+							grabSlot = slotAssignment[slotHit];
+						}
+					}
+				} else {
+					if (mouseState == 1) {
+						mouseState = 2;
+					}
+					if (mouseState == 2) {
+						var delta = e.clientX - grabPos;
+						if (delta < -upper_Canvas.width) {
+							delta = -upper_Canvas.width;
+						} else if (delta > upper_Canvas.width) {
+							delta = upper_Canvas.width;
+						}
+						cpos = slotAssignment.indexOf(grabSlot);
+						slots[slotAssignment[cpos]].pos.x = grabIx + delta;
+						slotPosUpdate(cpos);
+					}
+				}
+				cursor.x = e.clientX;
+			}
 		});		
 		addEventListener("mouseup", (e) => {
-			if (mouseState == 3) {
-				if ((e.clientY > (titleRelative.y*cont_height)) && (e.clientY < ((titleRelative.y + titleRelative.h)*cont_height))) {
-					window.location.href = "/body?deviceType=" + mobileCheck().toString();
+			if (landScape) {
+				if (mouseState == 3) {
+						if ((e.clientY > (titleRelative.y*cont_height)) && (e.clientY < ((titleRelative.y + titleRelative.h)*cont_height))) {
+							if (highlightTargets.enter > 0) {
+								window.location.href = "/body?deviceType=" + mobileCheck().toString();
+							}
+							if (highlightTargets.vfx > 0) {
+								window.location.href = "https://vimeo.com/626887676";
+							}
+							if (highlightTargets.game > 0) {
+								window.location.href = "https://vimeo.com/855250089";
+							}
+							if (highlightTargets.feature > 0) {
+								window.location.href = "https://vimeo.com/1001379816";
+							}
+							
+						}
+					}
+				if (mouseState == 2) {
+					var delta = e.clientX - grabPos;
+	//				ix = grabIx + delta;
+					scrollSpeed = e.clientX - lastCursor.x;
+					if (scrollSpeed < 0) {
+						scrollSpeed *= -1;
+						scrollSpeedDir = -1;
+					} else {
+						scrollSpeedDir = 1;
+					}
+					//end scroll
 				}
+				mouseState = 0;
 			}
-			if (mouseState == 2) {
-				var delta = e.clientX - grabPos;
-//				ix = grabIx + delta;
-				scrollSpeed = e.clientX - lastCursor.x;
-				if (scrollSpeed < 0) {
-					scrollSpeed *= -1;
-					scrollSpeedDir = -1;
-				} else {
-					scrollSpeedDir = 1;
-				}
-				//end scroll
-			}
-			mouseState = 0;
 		});
 		
 		function redrawScreen() {
@@ -926,7 +995,7 @@
 		};
 		const slotFont = {fontSize: 48, fontStyle: 'normal', fontWeight: 'normal', fontFamily: 'Bebas Neue'};
 		const mainTitleFont = {fontSize: 130, fontStyle: 'normal', fontWeight: 'normal', fontFamily: 'Voltaire'};
-		const subTitleFont = {fontSize: 60, fontStyle: 'normal', fontWeight: 'normal', fontFamily: 'Amatic SC'};
+		const subTitleFont = {fontSize: 50, fontStyle: 'normal', fontWeight: 'normal', fontFamily: 'Amatic SC'};
 		var slots = [];
 		var lowerSlots = [];
 		var slotAssignment = [];
@@ -944,6 +1013,8 @@
 		var scrollDamping = 0.1;
 		var titleHighlightSize = 0;
 		var titleHighlightTarget = 0;
+		var highlightTargets = {vfx: 0, feature: 0, game:0, enter:0}
+		var highlightSizes = {vfx: 0, feature: 0, game:0, enter:0}
 		var titleHighlightDamping = 0.1;
 		var grabPos = 0;
 		var grabIx = 0;
@@ -966,7 +1037,7 @@
 		slotScale = upper_Canvas.height / 1080;
 		if (upper_Canvas.height > upper_Canvas.width) {
 			landScape = false;
-			titleRelative = {x:0, y:0.55, w:1, h:0.28};
+			titleRelative = {x:0, y:0.55, w:1, h:0.45};
 		}
 
 		
