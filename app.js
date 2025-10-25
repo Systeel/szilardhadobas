@@ -4,6 +4,7 @@ const app = express();
 const path = require('path');
 const nodemailer = require('nodemailer');
 const url = require('url');
+const fs = require('fs');
 var transporter = nodemailer.createTransport({
 	service: 'gmail',
 	auth: {
@@ -22,6 +23,7 @@ app.use(express.static(__dirname + '/static'));
 app.get('/', (req, res) => {
 	res.sendFile(path.join(__dirname,'/static/web/index.html'));
 });
+
 
 app.get('/body', (req, res) => {
 	var url_parts = url.parse(req.url, true);

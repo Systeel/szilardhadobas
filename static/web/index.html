@@ -27,6 +27,7 @@
 			Canvas is not supported in this browser.
 		</canvas>
 	</div>
+	<script src="https://unpkg.com/konva@10/konva.min.js"></script>
 	<script src="/src/ImageSlot.js"></script>	
 	<script>
 //		document.cookie = "SameSite=None; Secure";
@@ -34,6 +35,7 @@
 	
 //		document.cookie = "SameSite=None, Secure"
 		function init() {
+			var _tss = slotScale / 2;
 			//loading fonts
 			uCtx.save();
 			uCtx.fillStyle = "rgba(0, 0, 0, 1)";
@@ -57,7 +59,7 @@
 				slotsWidth += (slotData[i].baseWidth - 10) * slotScale;
 				slotAssignment.push(i);
 			}
-			slotAssignment = shuffle(slotAssignment);
+			slotAssignment = shuffle(slotAssignment, [20, 21, 22, 23]);   
 			c = slotsWidth/2;
 			for (var i = 0; i < slotAssignment.length; i++) {
 				slots[slotAssignment[i]].pos.x = c;
@@ -66,26 +68,40 @@
 			for (var i = 0; i < slots.length; i++) {
 				slots[i].loadImage();
 				lowerSlots[i].loadImage();
-				lowerSlots[i].pos.y = upper_Canvas.height - 300 * slotScale;
+				lowerSlots[i].pos.y = upper_Canvas.height - 300 * _tss;
 			}
+			
+			
 		}
 		
-		function shuffle(array) {
-		  let currentIndex = array.length,  randomIndex;
+		function shuffle(array, showcased_array) {   //showcased is an array of array positions that goes in the middle
+			showcased_array.sort();
+			for (var i = showcased_array.length-1; i >= 0; i--) {
+				array.splice(showcased_array[i], 1);
+			}
+			let currentIndex = array.length,  randomIndex;
+			var _right = false;
+			// While there remain elements to shuffle.
+			while (currentIndex > 0) {
 
-		  // While there remain elements to shuffle.
-		  while (currentIndex > 0) {
+				// Pick a remaining element.
+				randomIndex = Math.floor(Math.random() * currentIndex);
+				currentIndex--;
 
-			// Pick a remaining element.
-			randomIndex = Math.floor(Math.random() * currentIndex);
-			currentIndex--;
-
-			// And swap it with the current element.
-			[array[currentIndex], array[randomIndex]] = [
-			  array[randomIndex], array[currentIndex]];
-		  }
-
-		  return array;
+				// And swap it with the current element.
+				[array[currentIndex], array[randomIndex]] = [
+				  array[randomIndex], array[currentIndex]];
+			}
+			showcased_array.unshift(array[0]); //fine tuning positioning
+			for (var i = 1; i < array.length; i++) {
+				if (_right) {
+					showcased_array.push(array[i]);
+				} else {
+					showcased_array.unshift(array[i]);
+				}
+				_right = !_right;
+			}
+			return showcased_array;
 		}		
 		
 		function drawGlobalFade() {
@@ -116,6 +132,7 @@
 		}
 		
 		function draw() {
+			var _tss = slotScale / 2;
 			uCtx.save();
 			var deltaX = 0;
 		/*	highlightSizes.vfx = highlightchange(highlightSizes.vfx, highlightTargets.vfx);
@@ -203,16 +220,16 @@
 				const grd = uCtx.createLinearGradient(0, (cSlot.img.height - gradientWidth / 2) * slotScale, 0, cSlot.img.height * slotScale);				
 				grd.addColorStop(0, slotHighlight[cData.type][0]);
 				grd.addColorStop(1, slotHighlight[cData.type][1]);
-				uCtx.setTransform(1, 0, -((10 * Math.PI) / 180), 1, cSlot.pos.x + (100 + 16) * slotScale, 0);
+				uCtx.setTransform(1, 0, -((10 * Math.PI) / 180), 1, cSlot.pos.x + (63) * slotScale, 0);
 				uCtx.fillStyle = grd;
-				uCtx.fillRect(0, (cSlot.img.height - gradientWidth / 2) * slotScale, (cSlot.baseWidth - 20) * slotScale, gradientWidth / 2 * slotScale);
+				uCtx.fillRect(0, (cSlot.img.height - gradientWidth / 2) * slotScale, (cSlot.baseWidth - 15) * slotScale, gradientWidth / 2 * slotScale);
 				if (landScape) {
 					const grd = uCtx.createLinearGradient(0, lSlot.pos.y, 0, lSlot.pos.y + gradientWidth / 2 * slotScale);				
 					grd.addColorStop(0, slotHighlight[cData.type][1]);
 					grd.addColorStop(1, slotHighlight[cData.type][0]);
-					uCtx.setTransform(1, 0, -((10 * Math.PI) / 180), 1, cSlot.pos.x + (100 + 16) * slotScale, 0);
+					uCtx.setTransform(1, 0, -((10 * Math.PI) / 180), 1, cSlot.pos.x + 90 * slotScale, 0);
 					uCtx.fillStyle = grd;
-					uCtx.fillRect(0, lSlot.pos.y, (cSlot.baseWidth - 20) * slotScale, gradientWidth / 2 * slotScale);
+					uCtx.fillRect(0, lSlot.pos.y, (cSlot.baseWidth - 15) * slotScale, gradientWidth / 2 * slotScale);
 				}
 
 
@@ -233,39 +250,41 @@
 				const grd = uCtx.createLinearGradient(0, 0, gradientWidth * slotScale, 0);
 				grd.addColorStop(0, slotHighlight[cData.type][1]);
 				grd.addColorStop(1, slotHighlight[cData.type][0]);
-				uCtx.setTransform(1, 0, -((10 * Math.PI) / 180), 1, cSlot.pos.x + (100 + 16) * slotScale, 0);
+				uCtx.setTransform(1, 0, -((10 * Math.PI) / 180), 1, cSlot.pos.x + (63) * slotScale, 0);
 				uCtx.fillStyle = grd;
 				uCtx.fillRect(0, 0, gradientWidth * slotScale, cSlot.img.height * slotScale);
 				if (landScape) {
+					uCtx.setTransform(1, 0, -((11 * Math.PI) / 180), 1, cSlot.pos.x + 106 * slotScale, 0);
 					uCtx.fillRect(0, lSlot.pos.y, gradientWidth * slotScale, lSlot.img.height * slotScale);
 				}
 				const grd2 = uCtx.createLinearGradient(0, 0, gradientWidth * slotScale, 0);
 				grd2.addColorStop(0, slotHighlight[cData.type][0]);
 				grd2.addColorStop(1, slotHighlight[cData.type][1]);
-				uCtx.setTransform(1, 0, -((10 * Math.PI) / 180), 1, cSlot.pos.x + (cSlot.baseWidth - 4 - 200) * slotScale, 0);
+				uCtx.setTransform(1, 0, -((10 * Math.PI) / 180), 1, cSlot.pos.x + (cSlot.baseWidth - 100) * slotScale, 0);
 				uCtx.fillStyle = grd2;
 				uCtx.fillRect(0, 0, gradientWidth * slotScale, cSlot.img.height * slotScale);
 				if (landScape) {
+					uCtx.setTransform(1, 0, -((11 * Math.PI) / 180), 1, cSlot.pos.x + (cSlot.baseWidth - 58) * slotScale, 0);
 					uCtx.fillRect(0, lSlot.pos.y, gradientWidth * slotScale, lSlot.img.height * slotScale);
 				}
 				//info
-				uCtx.setTransform(1, 0, -((10 * Math.PI) / 180), 1, cSlot.pos.x + (cSlot.baseWidth - 4 - 200) * slotScale, 0);
-				uCtx.font = slotFont.fontStyle + ' ' + slotFont.fontWeight + ' ' + ((slotFont.fontSize/2) * slotScale) + 'px ' + slotFont.fontFamily;
+				uCtx.setTransform(1, 0, -((10 * Math.PI) / 180), 1, cSlot.pos.x + (cSlot.baseWidth + 20 ) * _tss, 0);
+				uCtx.font = slotFont.fontStyle + ' ' + slotFont.fontWeight + ' ' + ((slotFont.fontSize*0.75) * _tss) + 'px ' + slotFont.fontFamily;
 				uCtx.shadowOffsetX = 2;
 				uCtx.shadowOffsetY = 2;
 				uCtx.shadowColor = "rgba(0, 0, 0, .75)";
 				uCtx.shadowBlur = 2;
 				uCtx.fillStyle = "white";
-				h = 80 * slotScale;
+				h = 80 * _tss;
 				for (k in cData.slideText) {
-					uCtx.fillText(k, -100 * slotScale, h );
-					h += (100 * slotScale);
+					uCtx.fillText(k, -100 * _tss, h );
+					h += (100 * _tss);
 				}
-				h = 130 * slotScale;
-				uCtx.font = slotFont.fontStyle + ' ' + slotFont.fontWeight + ' ' + (slotFont.fontSize * slotScale) + 'px ' + slotFont.fontFamily;
+				h = 130 * _tss;
+				uCtx.font = slotFont.fontStyle + ' ' + slotFont.fontWeight + ' ' + (slotFont.fontSize * _tss) + 'px ' + slotFont.fontFamily;
 				for (k in cData.slideText) {
-					uCtx.fillText(cData.slideText[k], -75 * slotScale, h);
-					h += (100 * slotScale);
+					uCtx.fillText(cData.slideText[k], -75 * _tss, h);
+					h += (100 * _tss);
 				}
 
 				
@@ -274,53 +293,67 @@
 
 			//name strip
 			if (landScape) {    
+				var img_w = upper_Canvas.height*0.7;
+				var img_h = img_w * 0.5177;
+			
 				uCtx.fillStyle = "rgba(2, 46, 63, 1)";
 				uCtx.shadowOffsetX = 0;
 				uCtx.shadowOffsetY = 0;
 				uCtx.shadowColor = "rgba(0, 0, 0, 1)";
-				uCtx.shadowBlur = 50 * slotScale;
-				uCtx.fillRect(0, 594 * slotScale, upper_Canvas.width, 196 * slotScale);
+				uCtx.shadowBlur = 50 * _tss;
+				uCtx.fillRect(0, 594 * _tss, upper_Canvas.width, upper_Canvas.height - 894 * _tss);
 				uCtx.fillStyle = "rgba(255, 222, 106, 1)";
+				uCtx.shadowColor = "rgba(0, 0, 0, .75)";
+				uCtx.textAlign = "center";
+				uCtx.textBaseline = "middle";
+				uCtx.font = mainTitleFont.fontStyle + ' ' + mainTitleFont.fontWeight + ' ' + Math.floor(mainTitleFont.fontSize * _tss) + 'px ' + mainTitleFont.fontFamily;
+				uCtx.fillText("SZILARD HADOBAS", upper_Canvas.width/2, 790*_tss);
+				uCtx.font = subTitleFont.fontStyle + ' ' + subTitleFont.fontWeight + ' ' + Math.floor(subTitleFont.fontSize * _tss) + 'px ' + subTitleFont.fontFamily;
+				uCtx.textAlign = "end";
+				uCtx.textBaseline = "middle";
+				uCtx.fillText("technical artist", (upper_Canvas.width+img_w)/2, 940*_tss);
 				uCtx.textAlign = "start";
 				uCtx.textBaseline = "middle";
-				uCtx.shadowColor = "rgba(0, 0, 0, .75)";
-				uCtx.font = mainTitleFont.fontStyle + ' ' + mainTitleFont.fontWeight + ' ' + Math.floor(mainTitleFont.fontSize * slotScale) + 'px ' + mainTitleFont.fontFamily;
-				uCtx.fillText("SZILARD HADOBAS", (50 * slotScale), 690*slotScale);
-				uCtx.font = subTitleFont.fontStyle + ' ' + subTitleFont.fontWeight + ' ' + Math.floor(subTitleFont.fontSize * slotScale) + 'px ' + subTitleFont.fontFamily;
-				uCtx.textAlign = "start";
-				uCtx.textBaseline = "top";
-				uCtx.fillText("senior animator - technical artist", 50 * slotScale, 690 * slotScale + (subTitleFont.fontSize * 0.75) * slotScale);
-				uCtx.textAlign = "end";
-				uCtx.textBaseline = "top";
-				uCtx.fillText("|", upper_Canvas.width - (50 + 1.65 * subTitleFont.fontSize)* slotScale, 594 * slotScale + (subTitleFont.fontSize / 2) * slotScale);
-				uCtx.fillText("|", upper_Canvas.width - (50 + 4.2 * subTitleFont.fontSize)* slotScale, 594 * slotScale + (subTitleFont.fontSize / 2) * slotScale);
-				uCtx.fillText("REELS:", upper_Canvas.width - (50 + 5.5 * subTitleFont.fontSize) * slotScale, 594 * slotScale + (subTitleFont.fontSize / 2) * slotScale);
-				uCtx.textAlign = "end";
-				uCtx.textBaseline = "top";
-				
-				uCtx.shadowColor = "rgba(255, 255, 255, 1)";
-				uCtx.shadowBlur = highlightTargets.vfx * slotScale;
-				if (highlightTargets.vfx > 0) { uCtx.fillStyle = "rgba(255, 255, 255, 1)"; } else {uCtx.fillStyle = "rgba(255, 222, 106, 1)";}
-				uCtx.fillText("VFX", upper_Canvas.width - (50 + 4.5 * subTitleFont.fontSize) * slotScale, 594 * slotScale + (subTitleFont.fontSize / 2) * slotScale);
-				uCtx.shadowBlur = highlightTargets.feature * slotScale;
-				if (highlightTargets.feature > 0) { uCtx.fillStyle = "rgba(255, 255, 255, 1)"; } else {uCtx.fillStyle = "rgba(255, 222, 106, 1)";}
-				uCtx.fillText("FEATURE", upper_Canvas.width - (50 + 2 * subTitleFont.fontSize)* slotScale, 594 * slotScale + (subTitleFont.fontSize / 2) * slotScale);
-				uCtx.shadowBlur = highlightTargets.game * slotScale;
-				if (highlightTargets.game > 0) { uCtx.fillStyle = "rgba(255, 255, 255, 1)"; } else {uCtx.fillStyle = "rgba(255, 222, 106, 1)";}
-				uCtx.fillText("GAME", upper_Canvas.width - 50 * slotScale, 594 * slotScale + (subTitleFont.fontSize / 2) * slotScale);
-				uCtx.shadowBlur = highlightTargets.enter * slotScale;
-				if (highlightTargets.enter > 0) { uCtx.fillStyle = "rgba(255, 255, 255, 1)"; } else {uCtx.fillStyle = "rgba(255, 222, 106, 1)";}
-				uCtx.fillText("more info...", upper_Canvas.width - 50 * slotScale, 690 * slotScale + (subTitleFont.fontSize * 0.75) * slotScale);
-/*				if (titleHighlightSize > 0) {
-					uCtx.textAlign = "start";
-					uCtx.textBaseline = "middle";
-					uCtx.shadowOffsetX = 0;
-					uCtx.shadowOffsetY = 0;
+				uCtx.fillText("freelance animator", (upper_Canvas.width-img_w)/2, 940 * _tss);
+				if (highlightTargets.enter > 0) { 
 					uCtx.shadowColor = "rgba(255, 255, 255, 1)";
-					uCtx.shadowBlur = titleHighlightSize * slotScale;
-					uCtx.font = mainTitleFont.fontStyle + ' ' + mainTitleFont.fontWeight + ' ' + Math.floor(mainTitleFont.fontSize * slotScale) + 'px ' + mainTitleFont.fontFamily;
-					uCtx.fillText("SZILARD HADOBAS", (50 * slotScale), 690*slotScale);
-				}*/
+					uCtx.shadowBlur = highlightTargets.enter * _tss;
+					uCtx.fillStyle = "rgba(255, 255, 255, 1)"; 
+					uCtx.textAlign = "center";
+					uCtx.textBaseline = "middle";
+					uCtx.font = mainTitleFont.fontStyle + ' ' + mainTitleFont.fontWeight + ' ' + Math.floor(mainTitleFont.fontSize * _tss) + 'px ' + mainTitleFont.fontFamily;
+					uCtx.fillText("SZILARD HADOBAS", upper_Canvas.width/2, 790*_tss);
+				} else {
+					uCtx.fillStyle = "rgba(255, 222, 106, 1)";
+					uCtx.shadowColor = "rgba(0, 0, 0, .75)";
+					uCtx.shadowBlur = 50 * _tss;
+				}
+				if (highlightTargets.reel > 0) { 
+					uCtx.shadowColor = "rgba(255, 255, 255, 1)";
+					uCtx.shadowBlur = highlightTargets.reel * _tss;
+					uCtx.fillStyle = "rgba(255, 255, 255, 1)"; 
+				} else {
+					uCtx.fillStyle = "rgba(255, 222, 106, 1)";
+					uCtx.shadowColor = "rgba(0, 0, 0, .75)";
+					uCtx.shadowBlur = 50 * _tss;
+				}
+				
+				uCtx.strokeStyle = "rgba(255, 222, 106, 1)";
+				uCtx.beginPath();
+				uCtx.moveTo(0, 594 * _tss);
+				uCtx.lineTo(upper_Canvas.width,594 * _tss);
+				uCtx.stroke();
+			
+				uCtx.beginPath();
+				uCtx.moveTo(0, upper_Canvas.height - 300 * _tss);
+				uCtx.lineTo(upper_Canvas.width,upper_Canvas.height - 300 * _tss);
+				uCtx.stroke();
+
+			
+				if (reelIcon_loaded) {
+					uCtx.drawImage(reelIcon, (upper_Canvas.width-img_w)/2, 1400*_tss-img_h/2, img_w, img_h);
+				}
+
 				uCtx.restore();
 			} else {
 				uCtx.fillStyle = "rgba(2, 46, 63, 1)";
@@ -330,42 +363,61 @@
 				uCtx.shadowBlur = 0;
 //				uCtx.fillRect(0, 594 * slotScale, upper_Canvas.width, 196 * slotScale);
 				uCtx.fillStyle = "rgba(2, 46, 63, 1)";
-				uCtx.fillRect(0, 594 * slotScale, upper_Canvas.width, upper_Canvas.height);
-				uCtx.shadowBlur = 50 * slotScale;
-				uCtx.fillRect(0, 594 * slotScale, upper_Canvas.width, 230 * slotScale);
+				uCtx.fillRect(0, 594 * _tss, upper_Canvas.width, upper_Canvas.height);
+				uCtx.shadowBlur = 50 * _tss;
+				uCtx.fillRect(0, 594 * _tss, upper_Canvas.width, 500 * _tss);
 				uCtx.fillStyle = "rgba(255, 222, 106, 1)";
 				uCtx.textAlign = "center";
 				uCtx.textBaseline = "middle";
 				uCtx.shadowColor = "rgba(0, 0, 0, .75)";
-				uCtx.font = mainTitleFont.fontStyle + ' ' + mainTitleFont.fontWeight + ' ' + Math.floor(mainTitleFont.fontSize * 0.65 * slotScale) + 'px ' + mainTitleFont.fontFamily;
-				uCtx.fillText("SZILARD HADOBAS", (upper_Canvas.width / 2), 700*slotScale);
-				uCtx.font = subTitleFont.fontStyle + ' ' + subTitleFont.fontWeight + ' ' + Math.floor(subTitleFont.fontSize * slotScale) + 'px ' + subTitleFont.fontFamily;
+				uCtx.font = mainTitleFont.fontStyle + ' ' + mainTitleFont.fontWeight + ' ' + Math.floor(mainTitleFont.fontSize *  _tss) + 'px ' + mainTitleFont.fontFamily;
+				uCtx.fillText("SZILARD", (upper_Canvas.width / 2), 770*_tss);
+				uCtx.fillText("HADOBAS", (upper_Canvas.width / 2), 970*_tss);
+				uCtx.font = subTitleFont.fontStyle + ' ' + subTitleFont.fontWeight + ' ' + Math.floor(subTitleFont.fontSize * 1.3 * _tss) + 'px ' + subTitleFont.fontFamily;
 				uCtx.textAlign = "center";
 				uCtx.textBaseline = "top";
-				uCtx.fillText("senior animator | technical artist", upper_Canvas.width / 2 , ( 705 + subTitleFont.fontSize / 2)* slotScale);
+				uCtx.fillText("freelance animator", upper_Canvas.width / 2 ,  1105 * _tss);
+				uCtx.fillText("technical artist", upper_Canvas.width / 2 , 1250 * _tss);
 
-				uCtx.shadowOffsetX = 0;
-				uCtx.shadowOffsetY = 0;
-				uCtx.shadowColor = "rgba(0, 0, 0, 1)";
 				uCtx.shadowBlur = 0;
-				uCtx.textAlign = "center";
-				uCtx.textBaseline = "top";
-				uCtx.font = subTitleFont.fontStyle + ' ' + subTitleFont.fontWeight + ' ' + Math.floor(subTitleFont.fontSize * 1.5 *  slotScale) + 'px ' + subTitleFont.fontFamily;
-				uCtx.fillText("REELS: VFX | FEATURE | GAME", upper_Canvas.width / 2, ( 824 + subTitleFont.fontSize / 2)* slotScale );
-				uCtx.textAlign = "center";
-				uCtx.textBaseline = "bottom";
-				uCtx.fillText("More Info...", upper_Canvas.width / 2,  upper_Canvas.height - 50 * slotScale );
-				if (titleHighlightSize > 0) {
+				uCtx.strokeStyle = "rgba(255, 222, 106, 1)";
+				uCtx.beginPath();
+				uCtx.moveTo(0, 594 * _tss);
+				uCtx.lineTo(upper_Canvas.width,594 * _tss);
+				uCtx.stroke();
+			
+				uCtx.beginPath();
+				uCtx.moveTo(0, 1094 * _tss);
+				uCtx.lineTo(upper_Canvas.width,1094 * _tss);
+				uCtx.stroke();
+
+
+	/*			if (titleHighlightSize > 0) {
 					uCtx.textAlign = "center";
 					uCtx.textBaseline = "middle";
 					uCtx.shadowOffsetX = 0;
 					uCtx.shadowOffsetY = 0;
 					uCtx.shadowColor = "rgba(255, 255, 255, 1)";
-					uCtx.shadowBlur = titleHighlightSize * slotScale;
-					uCtx.font = mainTitleFont.fontStyle + ' ' + mainTitleFont.fontWeight + ' ' + Math.floor(mainTitleFont.fontSize * slotScale) + 'px ' + mainTitleFont.fontFamily;
-					uCtx.fillText("SZILARD HADOBAS", (upper_Canvas.width / 2), 700*slotScale);
+					uCtx.shadowBlur = titleHighlightSize * _tss;
+					uCtx.font = mainTitleFont.fontStyle + ' ' + mainTitleFont.fontWeight + ' ' + Math.floor(mainTitleFont.fontSize * _tss) + 'px ' + mainTitleFont.fontFamily;
+					uCtx.fillText("SZILARD HADOBAS", (upper_Canvas.width / 2), 700*_tss);
+				}*/
+
+				var img_w = upper_Canvas.width*0.9;
+				var img_h = img_w * 0.5177;	
+				var ty = (1300 * _tss + Math.floor(subTitleFont.fontSize * 1.3 * _tss));
+				if ((upper_Canvas.height - (1300 * _tss + Math.floor(subTitleFont.fontSize * 1.3 * _tss))) < img_h) {
+					img_h = (upper_Canvas.height - (1300 * _tss + Math.floor(subTitleFont.fontSize * 1.3 * _tss)));
+					img_w = img_h / 0.5177;
+					ty = upper_Canvas.height - (img_h + 50 * _tss);
 				}
+				var tx = (upper_Canvas.width-img_w)/2;
+				if (reelIcon_loaded) {
+					uCtx.drawImage(reelIcon, tx,ty, img_w, img_h);
+				}
+				
 				uCtx.restore();
+				
 			}
 
 		
@@ -413,6 +465,7 @@
 		
 
 		addEventListener('resize', () => {
+		var _tss = slotScale / 2;
 			cont_positionInfo = up_container.getBoundingClientRect();
 //			cont_height = cont_positionInfo.height;
 			cont_height = window.innerHeight;
@@ -423,7 +476,7 @@
 			for (var i = 0; i < slots.length; i++) {
 				slots[i].scale = slotScale;
 				lowerSlots[i].scale = slotScale;
-				lowerSlots[i].pos.y = upper_Canvas.height - 300 * slotScale;
+				lowerSlots[i].pos.y = upper_Canvas.height - 300 * _tss;
 			}
 			var slotHit = -1;
 			var spread = 0;
@@ -442,7 +495,7 @@
 			}
 			if (upper_Canvas.height > upper_Canvas.width) {
 				landScape = false; 
-				titleRelative = {x:0, y:0.55, w:1, h:0.45};
+				titleRelative = {x:0, y:0.27, w:1, h:0.73};
 			} else {
 				landScape = true; 
 				titleRelative = {x:0, y:0.55, w:1, h:0.18};
@@ -456,6 +509,8 @@
 			scrollSpeed = 0;
 			slotHit = -1;
 			grabSlot = -1;
+			console.log(titleRelative);
+			console.log(e.touches[0].clientY, titleRelative.y*cont_height);
 			if (e.touches[0].clientY > (titleRelative.y*cont_height)) {
 				//kattintas a titlebar-ra
 				mouseState = 3;
@@ -513,23 +568,15 @@
 		addEventListener("touchend", (e) => {
 			if (mouseState == 3) {
 				if (e.changedTouches[0].clientY > (titleRelative.y*cont_height)) {
-					if (e.changedTouches[0].clientY > 0.87*cont_height) {
+					if ((e.changedTouches[0].clientY > 0.27*cont_height) && ((e.changedTouches[0].clientY < 0.5*cont_height))) {
+						navigator.vibrate(200);
 						window.location.href = "/body?deviceType=" + mobileCheck().toString();
 					} else {
-						if (e.changedTouches[0].clientY > 0.75*cont_height) {
-							if ((e.changedTouches[0].clientX > 0.25*cont_width) && (e.changedTouches[0].clientX < 0.37*cont_width)) {
-								window.location.href = "https://vimeo.com/626887676";
-							}
-							if ((e.changedTouches[0].clientX > 0.42*cont_width) && (e.changedTouches[0].clientX < 0.7*cont_width)) {
-								window.location.href = "https://vimeo.com/1001379816";								
-							}
-							if (e.changedTouches[0].clientX > 0.75*cont_width) {
-								window.location.href = "https://vimeo.com/855250089";
-							}
-						}
+						navigator.vibrate(200);
+						window.location.href = "/body?deviceType=" + mobileCheck().toString() + "&reelType=True";
 					}
-				}		
-			}
+				}
+			}		
 			if (mouseState == 2) {
 				var delta = e.changedTouches[0].clientX - grabPos;
 //				ix = grabIx + delta;
@@ -546,14 +593,15 @@
 		});
 		
 		addEventListener("mousedown", (e) => {
+			var _tss = slotScale / 2;
 			if (landScape) {
 				scrollSpeed = 0;
 				slotHit = -1;
 				grabSlot = -1;
-				if ((e.clientY > (titleRelative.y*cont_height)) && (e.clientY < ((titleRelative.y + titleRelative.h)*cont_height))) {
+				if ((e.clientY > 594 * _tss) && (e.clientY < upper_Canvas.height - 300 * _tss)) {
 					mouseState = 3;
 					//kattintas a titlebar-ra
-				} else {
+				} else {				
 					//kattintas a slotokra
 					for (var i = slots.length-1; i >= 0; i--) {
 						if (slots[slotAssignment[i]].isHit(e.clientX, e.clientY)) {
@@ -573,38 +621,62 @@
 						reCenterSlots(slotHit, grabIx);
 						grabPos = e.clientX;
 						mouseState = 1;
+						upper_Canvas.style.cursor = "grabbing";
 					}
 				}
 			}
 		}); // click and hold to pan
 		addEventListener("mousemove", (e) => {
 			if (landScape) {
+				var _tss = slotScale / 2;
 				lastCursor.x = cursor.x;
 				if ((mouseState == 0) || (mouseState == 3)) {
-					if ((e.clientY > (titleRelative.y*cont_height)) && (e.clientY < ((titleRelative.y + titleRelative.h)*cont_height))) {
-						highlightTargets.game = 0;
-						highlightTargets.feature = 0;
-						highlightTargets.vfx = 0;
-						highlightTargets.enter = 0;				
-						if ((e.clientY > (titleRelative.y*cont_height)) && (e.clientY < ((titleRelative.y + titleRelative.h / 2)*cont_height))) {
-							if ((e.clientX < (upper_Canvas.width - (50 * slotScale))) && (e.clientX > upper_Canvas.width - (50 + 1.5 * subTitleFont.fontSize) * slotScale)) {
+					upper_Canvas.style.cursor = "grab";
+					if ((e.clientY > (600 * _tss)) && (e.clientY < (upper_Canvas.height - 300 * _tss))) {
+						upper_Canvas.style.cursor = "auto";
+						highlightTargets.reel = 0;
+						highlightTargets.enter = 0;	
+						var img_w = upper_Canvas.height*0.8;
+						var img_h = img_w * 0.5177;
+						if (e.clientY <  (1300*_tss-img_h/2)) {
+							if ((e.clientX > (upper_Canvas.width/2 - mainTitleFont.fontSize * _tss * 3)) && (e.clientX < upper_Canvas.width/2 + mainTitleFont.fontSize * _tss * 3)) {
+								highlightTargets.enter = 25;
+								upper_Canvas.style.cursor = "pointer";
+							}
+						} else {
+						
+							if ((e.clientX > (upper_Canvas.width-img_w)/2) && (e.clientX < (upper_Canvas.width+img_w)/2)) {
+								highlightTargets.reel = 25;
+								upper_Canvas.style.cursor = "pointer";
+							}
+						}
+/*
+					var img_w = upper_Canvas.height*0.8;
+					var img_h = img_w * 0.5177;
+					uCtx.drawImage(reelIcon, (upper_Canvas.width-img_w)/2, 1300*slotScale-img_h/2, img_w, img_h);
+
+/*				uCtx.font = mainTitleFont.fontStyle + ' ' + mainTitleFont.fontWeight + ' ' + Math.floor(mainTitleFont.fontSize * slotScale) + 'px ' + mainTitleFont.fontFamily;
+				uCtx.fillText("SZILARD HADOBAS", upper_Canvas.width/2, 750*slotScale);
+				uCtx.fillRect(0, 594 * slotScale, upper_Canvas.width, upper_Canvas.height - 894 * slotScale);*/
+
+						
+				/*		if ((e.clientY > (titleRelative.y*cont_height)) && (e.clientY < ((titleRelative.y + titleRelative.h / 2)*cont_height))) {
+							if ((e.clientX < (upper_Canvas.width - (50 * _tss))) && (e.clientX > upper_Canvas.width - (50 + 1.5 * subTitleFont.fontSize) * _tss)) {
 								highlightTargets.game = 25;
 							} 
-							if ((e.clientX < (upper_Canvas.width - (50 + 1.5 * subTitleFont.fontSize) * slotScale)) && (e.clientX > upper_Canvas.width - (50 + 4 * subTitleFont.fontSize) * slotScale)) {
+							if ((e.clientX < (upper_Canvas.width - (50 + 1.5 * subTitleFont.fontSize) * _tss)) && (e.clientX > upper_Canvas.width - (50 + 4 * subTitleFont.fontSize) * _tss)) {
 								highlightTargets.feature = 25;
 							} 
-							if ((e.clientX < (upper_Canvas.width - (50 + 4 * subTitleFont.fontSize) * slotScale)) && (e.clientX > upper_Canvas.width - (50 + 5.5 * subTitleFont.fontSize) * slotScale)) {
+							if ((e.clientX < (upper_Canvas.width - (50 + 4 * subTitleFont.fontSize) * _tss)) && (e.clientX > upper_Canvas.width - (50 + 5.5 * subTitleFont.fontSize) * _tss)) {
 								highlightTargets.vfx = 25;
 							} 						
 						} else {
-							if ((e.clientX < (upper_Canvas.width - 50 * slotScale)) && (e.clientX > upper_Canvas.width - (50 + 3 * subTitleFont.fontSize) * slotScale)) {
+							if ((e.clientX < (upper_Canvas.width / 2 - 50 * _tss)) && (e.clientX > upper_Canvas.width - (50 + 3 * subTitleFont.fontSize) * _tss)) {
 								highlightTargets.enter = 25;
 							} 
-						}
+						}*/
 					} else {
-						highlightTargets.game = 0;
-						highlightTargets.feature = 0;
-						highlightTargets.vfx = 0;
+						highlightTargets.reel = 0;
 						highlightTargets.enter = 0;
 					}
 					if (mouseState == 0) {
@@ -647,23 +719,21 @@
 		});		
 		addEventListener("mouseup", (e) => {
 			if (landScape) {
+				_tss = slotScale / 2;
 				if (mouseState == 3) {
-						if ((e.clientY > (titleRelative.y*cont_height)) && (e.clientY < ((titleRelative.y + titleRelative.h)*cont_height))) {
-							if (highlightTargets.enter > 0) {
-								window.location.href = "/body?deviceType=" + mobileCheck().toString();
-							}
-							if (highlightTargets.vfx > 0) {
-								window.location.href = "https://vimeo.com/626887676";
-							}
-							if (highlightTargets.game > 0) {
-								window.location.href = "https://vimeo.com/855250089";
-							}
-							if (highlightTargets.feature > 0) {
-								window.location.href = "https://vimeo.com/1001379816";
-							}
-							
-						}
+					if (highlightTargets.enter > 0) {
+						window.location.href = "/body?deviceType=" + mobileCheck().toString();
 					}
+					if (highlightTargets.reel > 0) {
+						window.location.href = "/body?deviceType=" + mobileCheck().toString() + "&reelType=True";
+					}
+/*					if (highlightTargets.game > 0) {
+						window.location.href = "https://vimeo.com/855250089";
+					}
+					if (highlightTargets.feature > 0) {
+						window.location.href = "https://vimeo.com/1001379816";
+					}*/
+				}
 				if (mouseState == 2) {
 					var delta = e.clientX - grabPos;
 	//				ix = grabIx + delta;
@@ -674,6 +744,7 @@
 					} else {
 						scrollSpeedDir = 1;
 					}
+					upper_Canvas.style.cursor = "grab";
 					//end scroll
 				}
 				mouseState = 0;
@@ -691,8 +762,8 @@
 				id: 1,
 				upper_image_link: "img/landing_end_tile.png",
 				lower_image_link: "img/landing_end_name.png",
-				width: 582,
-				baseWidth: 475,
+				width: 291,
+				baseWidth: 237,
 				type: "feature",
 				slideText:{
 					"Title:": "Egon and Dönci",
@@ -706,8 +777,8 @@
 				id: 2,
 				upper_image_link: "img/landing_cry_tile.png",
 				lower_image_link: "img/landing_cry_name.png",
-				width: 582,
-				baseWidth: 475,
+				width: 291,
+				baseWidth: 237,
 				type: "game",
 				slideText:{
 					"Title:": "Crysis Warhead",
@@ -721,8 +792,8 @@
 				id: 3,
 				upper_image_link: "img/landing_rys_tile.png",
 				lower_image_link: "img/landing_rys_name.png",
-				width: 579,
-				baseWidth: 472,
+				width: 290,
+				baseWidth: 236,
 				type: "game",
 				slideText:{
 					"Title:": "Ryse son of Rome",
@@ -736,8 +807,8 @@
 				id: 4,
 				upper_image_link: "img/landing_dbo_tile.png",
 				lower_image_link: "img/landing_dbo_name.png",
-				width: 579,
-				baseWidth: 472,
+				width: 290,
+				baseWidth: 236,
 				type: "VFX",
 				slideText:{
 					"Title:": "Dumbo",
@@ -751,8 +822,8 @@
 				id: 5,
 				upper_image_link: "img/landing_mal_tile.png",
 				lower_image_link: "img/landing_mal_name.png",
-				width: 578,
-				baseWidth: 471,
+				width: 289,
+				baseWidth: 235,
 				type: "VFX",
 				slideText:{
 					"Title:": "Maleficent 2",
@@ -766,8 +837,8 @@
 				id: 6,
 				upper_image_link: "img/landing_mid_tile.png",
 				lower_image_link: "img/landing_mid_name.png",
-				width: 578,
-				baseWidth: 471,
+				width: 289,
+				baseWidth: 235,
 				type: "VFX",
 				slideText:{
 					"Title:": "The Midnight Sky",
@@ -781,8 +852,8 @@
 				id: 7,
 				upper_image_link: "img/landing_tnj_tile.png",
 				lower_image_link: "img/landing_tnj_name.png",
-				width: 579,
-				baseWidth: 472,
+				width: 289,
+				baseWidth: 236,
 				type: "VFX",
 				slideText:{
 					"Title:": "Tom and Jerry",
@@ -796,8 +867,8 @@
 				id: 8,
 				upper_image_link: "img/landing_sod_tile.png",
 				lower_image_link: "img/landing_sod_name.png",
-				width: 579,
-				baseWidth: 472,
+				width: 289,
+				baseWidth: 236,
 				type: "VFX",
 				slideText:{
 					"Title:": "Fantastic Beasts 3",
@@ -811,8 +882,8 @@
 				id: 9,
 				upper_image_link: "img/landing_mar_tile.png",
 				lower_image_link: "img/landing_mar_name.png",
-				width: 578,
-				baseWidth: 471,
+				width: 289,
+				baseWidth: 235,
 				type: "VFX",
 				slideText:{
 					"Title:": "The Marvels",
@@ -826,8 +897,8 @@
 				id: 10,
 				upper_image_link: "img/landing_tam_tile.png",
 				lower_image_link: "img/landing_tam_name.png",
-				width: 578,
-				baseWidth: 471,
+				width: 289,
+				baseWidth: 235,
 				type: "feature",
 				slideText:{
 					"Title:": "The Amazing Maurice",
@@ -841,8 +912,8 @@
 				id: 11,
 				upper_image_link: "img/landing_scr_tile.png",
 				lower_image_link: "img/landing_scr_name.png",
-				width: 579,
-				baseWidth: 472,
+				width: 289,
+				baseWidth: 236,
 				type: "feature",
 				slideText:{
 					"Title:": "Scrooge",
@@ -856,8 +927,8 @@
 				id: 12,
 				upper_image_link: "img/landing_paw_tile.png",
 				lower_image_link: "img/landing_paw_name.png",
-				width: 578,
-				baseWidth: 471,
+				width: 289,
+				baseWidth: 235,
 				type: "feature",
 				slideText:{
 					"Title:": "Paw patrol 2",
@@ -871,8 +942,8 @@
 				id: 13,
 				upper_image_link: "img/landing_tfb_tile.png",
 				lower_image_link: "img/landing_tfb_name.png",
-				width: 579,
-				baseWidth: 472,
+				width: 289,
+				baseWidth: 236,
 				type: "feature",
 				slideText:{
 					"Title:": "The firebuds S2",
@@ -886,8 +957,8 @@
 				id: 14,
 				upper_image_link: "img/landing_ww2_tile.png",
 				lower_image_link: "img/landing_ww2_name.png",
-				width: 578,
-				baseWidth: 471,
+				width: 289,
+				baseWidth: 235,
 				type: "VFX",
 				slideText:{
 					"Title:": "Wonder Woman 1984",
@@ -901,8 +972,8 @@
 				id: 15,
 				upper_image_link: "img/landing_adl_tile.png",
 				lower_image_link: "img/landing_adl_name.png",
-				width: 578,
-				baseWidth: 471,
+				width: 289,
+				baseWidth: 235,
 				type: "feature",
 				slideText:{
 					"Title:": "Another Day of Life",
@@ -916,8 +987,8 @@
 				id: 16,
 				upper_image_link: "img/landing_mac_tile.png",
 				lower_image_link: "img/landing_mac_name.png",
-				width: 578,
-				baseWidth: 471,
+				width: 289,
+				baseWidth: 235,
 				type: "feature",
 				slideText:{
 					"Title:": "Matches",
@@ -931,8 +1002,8 @@
 				id: 17,
 				upper_image_link: "img/landing_thz_tile.png",
 				lower_image_link: "img/landing_thz_name.png",
-				width: 578,
-				baseWidth: 471,
+				width: 289,
+				baseWidth: 235,
 				type: "game",
 				slideText:{
 					"Title:": "Tankheadz",
@@ -946,8 +1017,8 @@
 				id: 18,
 				upper_image_link: "img/landing_fib_tile.png",
 				lower_image_link: "img/landing_fib_name.png",
-				width: 578,
-				baseWidth: 471,
+				width: 289,
+				baseWidth: 235,
 				type: "game",
 				slideText:{
 					"Title:": "Fibble",
@@ -961,8 +1032,8 @@
 				id: 19,
 				upper_image_link: "img/landing_col_tile.png",
 				lower_image_link: "img/landing_col_name.png",
-				width: 578,
-				baseWidth: 471,
+				width: 289,
+				baseWidth: 235,
 				type: "game",
 				slideText:{
 					"Title:": "The Collectables",
@@ -976,8 +1047,8 @@
 				id: 20,
 				upper_image_link: "img/landing_wdl_tile.png",
 				lower_image_link: "img/landing_wdl_name.png",
-				width: 578,
-				baseWidth: 471,
+				width: 289,
+				baseWidth: 235,
 				type: "feature",
 				slideText:{
 					"Title:": "Wondla",
@@ -986,7 +1057,68 @@
 					"Role:": "senior animator (1 ep)",
 					"Year:": "2023"
 				}
-			}				
+			},
+			{
+				id: 21,
+				upper_image_link: "img/landing_aba_tile.png",
+				lower_image_link: "img/landing_aba_name.png",
+				width: 289,
+				baseWidth: 235,
+				type: "VFX",
+				slideText:{
+					"Title:": "ABBA Voyage",
+					"Studio:": "ILM",
+					"Location:": "London, UK",
+					"Role:": "animator",
+					"Year:": "2024"
+				}
+			},
+			{
+				id: 22,
+				upper_image_link: "img/landing_ven_tile.png",
+				lower_image_link: "img/landing_ven_name.png",
+				width: 289,
+				baseWidth: 235,
+				type: "VFX",
+				slideText:{
+					"Title:": "Venom: The Last Dance",
+					"Studio:": "ILM",
+					"Location:": "London, UK",
+					"Role:": "animator",
+					"Year:": "2024"
+				}
+			},
+			{
+				id: 23,
+				upper_image_link: "img/landing_tff_tile.png",
+				lower_image_link: "img/landing_tff_name.png",
+				width: 289,
+				baseWidth: 235,
+				type: "VFX",
+				slideText:{
+					"Title:": "Fantastic Four",
+					"Studio:": "ILM",
+					"Location:": "London, UK",
+					"Role:": "animator",
+					"Year:": "2025"
+				}
+			},
+			{
+				id: 24,
+				upper_image_link: "img/landing_phm_tile.png",
+				lower_image_link: "img/landing_phm_name.png",
+				width: 289,
+				baseWidth: 235,
+				type: "VFX",
+				slideText:{
+					"Title:": "Project Hail Mary",
+					"Studio:": "Framestore",
+					"Location (remote):": "Montreal, QC, Canada",
+					"Role:": "senior animator",
+					"Year:": "2025"
+				}
+			}			
+			
 		];
 		const slotHighlight = {
 			"VFX": ["rgba(0, 0, 255, 0)", "rgba(0, 0, 255, 0.5)"],
@@ -994,8 +1126,8 @@
 			"game": ["rgba(0, 255, 0, 0)", "rgba(0, 255, 0, 0.5)"]
 		};
 		const slotFont = {fontSize: 48, fontStyle: 'normal', fontWeight: 'normal', fontFamily: 'Bebas Neue'};
-		const mainTitleFont = {fontSize: 130, fontStyle: 'normal', fontWeight: 'normal', fontFamily: 'Voltaire'};
-		const subTitleFont = {fontSize: 50, fontStyle: 'normal', fontWeight: 'normal', fontFamily: 'Amatic SC'};
+		const mainTitleFont = {fontSize: 245, fontStyle: 'normal', fontWeight: 'normal', fontFamily: 'Voltaire'};
+		const subTitleFont = {fontSize: 125, fontStyle: 'normal', fontWeight: 'normal', fontFamily: 'Amatic SC'};
 		var slots = [];
 		var lowerSlots = [];
 		var slotAssignment = [];
@@ -1003,7 +1135,7 @@
 		var slotScale = 1;
 		var slotHit = -1;
 		var grabSlot = -1;		
-		var gradientWidth = 300;
+		var gradientWidth = 150;
 		const cursor = {x: 0, y: 0};
 		const lastCursor = {x: 0, y: 0};
 		var mouseState = 0;
@@ -1013,8 +1145,8 @@
 		var scrollDamping = 0.1;
 		var titleHighlightSize = 0;
 		var titleHighlightTarget = 0;
-		var highlightTargets = {vfx: 0, feature: 0, game:0, enter:0}
-		var highlightSizes = {vfx: 0, feature: 0, game:0, enter:0}
+		var highlightTargets = {reel: 0, enter:0}
+		var highlightSizes = {vfx: 0, enter:0}
 		var titleHighlightDamping = 0.1;
 		var grabPos = 0;
 		var grabIx = 0;
@@ -1023,6 +1155,22 @@
 		var globalFade = 1;
 		var globalFadeDamping = 0.05;
 		var landScape = true;
+
+		//load reelIcon ImageSlot
+		var reelIcon = new Image();
+		var reelIcon_loaded = false;
+		reelIcon.src = 'img/reel_play.jpg';
+		reelIcon.onload = function () {
+			reelIcon_loaded = true;
+		}
+		const logoList = ["img/ves-logo.jpg", "img/siggraph_logo.jpg", "img/agora_logo.jpg", "img/fireframe_logo.jpg", "img/icon_creative_studio_logo.jpg", "img/trixter_logo.jpg", "img/kecskemetfilm_logo.jpg"];
+		var logoIcons = [];
+		for (var i = 0; i < logoList.length; i++) {
+			var tIMG = new Image();
+			tIMG.src = logoList[i];
+			logoIcons.push(tIMG);
+		}
+		
 		
 		upper_Canvas = document.getElementById("upper_canvas");
 		uCtx = upper_Canvas.getContext("2d");
@@ -1037,7 +1185,7 @@
 		slotScale = upper_Canvas.height / 1080;
 		if (upper_Canvas.height > upper_Canvas.width) {
 			landScape = false;
-			titleRelative = {x:0, y:0.55, w:1, h:0.45};
+			titleRelative = {x:0, y:0.27, w:1, h:0.73};
 		}
 
 		
